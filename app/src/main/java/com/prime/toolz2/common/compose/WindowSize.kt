@@ -1,5 +1,6 @@
 import android.app.Activity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.platform.LocalConfiguration
@@ -75,4 +76,9 @@ fun Activity.rememberWindowSizeClass(): WindowSize {
      }*/
 
     // Use widthWindowSizeClass and heightWindowSizeClass
+}
+
+
+val LocalWindowSizeClass = compositionLocalOf<WindowSize> {
+    error("No Window size available")
 }

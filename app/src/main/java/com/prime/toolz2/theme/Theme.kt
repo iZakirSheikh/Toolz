@@ -1,6 +1,5 @@
 package com.prime.toolz2.theme
 
-import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
@@ -9,11 +8,11 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.systemuicontroller.SystemUiController
@@ -41,6 +40,28 @@ val ProvidedFontFamily = AndroidFontFamily(
     //medium
     Font(R.font.lato_bold, FontWeight.Medium),
 )
+
+interface Padding {
+
+    val Small: Dp
+
+    val Medium: Dp
+
+    val Normal: Dp
+
+    val Large: Dp
+}
+
+private val padding =
+    object : Padding {
+        override val Small: Dp = 4.dp
+
+        override val Medium: Dp = 8.dp
+        override val Normal: Dp = 16.dp
+        override val Large: Dp = 32.dp
+    }
+
+val Material.padding: Padding get() = com.prime.toolz2.theme.padding
 
 /**
  * Constructs the typography with the [fontFamily] provided with support for capitalizing.

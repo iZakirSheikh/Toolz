@@ -3,20 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.prime.toolz2">
 
+    <!--Currently the app is only supported./tested on devices with below dimensions-->
+     <supports-screens
+         android:requiresSmallestWidthDp="300"
+         android:largestWidthLimitDp="420"
+         />
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:name=".App"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Toolz"
+        android:theme="@style/Theme.Splash"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Toolz">
+            android:screenOrientation="portrait"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

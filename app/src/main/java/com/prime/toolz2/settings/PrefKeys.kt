@@ -6,10 +6,7 @@ import androidx.compose.material.lightColors
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.prime.toolz2.common.compose.hsl
-import com.primex.preferences.StringSaver
-import com.primex.preferences.booleanPreferenceKey
-import com.primex.preferences.intPreferenceKey
-import com.primex.preferences.stringPreferenceKey
+import com.primex.preferences.*
 import com.primex.widgets.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -98,13 +95,18 @@ object PrefKeys {
         name = TAG + "number_of_decimals",
         defaultValue = 5
     )
+
+    val FONT_SCALE = floatPreferenceKey(
+        TAG + "font_scale",
+        defaultValue = 1.0f
+    )
 }
 
 private val DefaultLightColorScheme = lightColors(
-    primary = /*Color(0xFF1e9618)*/ /*Color(0xFF0600e9)*/ Color.MetroGreen,
-    primaryVariant = Color.MetroGreen.hsl(lightness = 0.95f) /*Color(0xFF006700)*/, //darken a bit
-    secondary = Color.Rose,
-    secondaryVariant = Color.Rose.hsl(lightness = 0.95f), // darken a bit!!. TODO use relative brightness.
+    primary = /*Color(0xFF1e9618)*/ /*Color(0xFF0600e9)*/ Color.SkyBlue,
+    primaryVariant = Color.SkyBlue.hsl(lightness = 0.95f) /*Color(0xFF006700)*/, //darken a bit
+    secondary = Color.AzureBlue,
+    secondaryVariant = Color.AzureBlue.hsl(lightness = 0.95f), // darken a bit!!. TODO use relative brightness.
     onPrimary = Color.White,
     onSecondary = Color.White,
     surface = Color.White,
