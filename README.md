@@ -130,6 +130,18 @@ free to `buy me a cup of coffee` 😄. Thanks!
 <br>
 
 
+## 📩 Contact
+
+I know that first and foremost you are looking for a tool to solve your problems, but if you enjoy
+it that much, why not tell us? We would love to hear from you 😉
+
+DM me at 👇
+
+* Twitter: <a href="https://twitter.com/zakirsheikh74" target="_blank">@spikeysanju</a>
+* Email: feedbacktoprime@gmail.com
+
+<br>
+
 ## 🔖 License
 
 ```
