@@ -137,7 +137,7 @@ it that much, why not tell us? We would love to hear from you 😉
 
 DM me at 👇
 
-* Twitter: <a href="https://twitter.com/zakirsheikh74" target="_blank">@spikeysanju</a>
+* Twitter: <a href="https://twitter.com/zakirsheikh74" target="_blank">@zakirsheikh74</a>
 * Email: feedbacktoprime@gmail.com
 
 <br>
