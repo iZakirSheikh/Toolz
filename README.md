@@ -4,9 +4,9 @@
 [![GitHub license](https://img.shields.io/badge/License-Apache2.0-blue.svg)](LICENSE)
 
 
-![GitHub stars](https://img.shields.io/github/stars/prime-zs/toolz?style=social)
-![GitHub stars](https://img.shields.io/github/forks/prime-zs/toolz?style=social)
-![GitHub stars](https://img.shields.io/github/watchers/prime-zs/toolz?style=social)
+![GitHub stars](https://img.shields.io/github/stars/prime-zs/toolz2?style=social)
+![GitHub stars](https://img.shields.io/github/forks/prime-zs/toolz2?style=social)
+![GitHub stars](https://img.shields.io/github/watchers/prime-zs/toolz2?style=social)
 ![GitHub follow](https://img.shields.io/github/followers/prime-zs?label=Follow&style=social)
 
 
@@ -41,7 +41,9 @@ The Different units that are supoported by the App include
 
 ***Try latest Toolz app apk from below 👇***
 
-<a href="https://play.google.com/store/apps/details?id=com.prime.toolz">
+***Note: currently the app is in alpha and available on internal testers channel, you can pm me ur email and I will surely add you as tester.***
+
+<a href="https://play.google.com/store/apps/details?id=com.prime.toolz2">
   <img src="https://github.com/steverichey/google-play-badge-svg/blob/master/img/en_get.svg" alt="Download Now 3.1" width="180" height="65">
 </a>
 
@@ -57,7 +59,7 @@ The Different units that are supoported by the App include
 
 |   Shot-1    | Shot-2
 |---	|---
-|  ![](https://github.com/prime-zs/toolz/blob/master/art/Screenshot_2022-05-16-09-50-15-79.png)    |  ![](https://github.com/prime-zs/toolz/blob/master/art/Screenshot_2022-05-16-09-50-48-66.png)    
+|  ![](https://github.com/prime-zs/toolz2/blob/master/art/Screenshot_2022-05-16-09-50-15-79.png)    |  ![](https://github.com/prime-zs/toolz2/blob/master/art/Screenshot_2022-05-16-09-50-48-66.png)    
 <br />
 
 ## 🛠 Built With
