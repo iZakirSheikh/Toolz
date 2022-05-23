@@ -59,7 +59,7 @@ The Different units that are supoported by the App include
 
 |   Shot-1    | Shot-2
 |---	|---
-|  ![](https://github.com/prime-zs/toolz2/blob/master/art/Screenshot_2022-05-16-09-50-15-79.png)    |  ![](https://github.com/prime-zs/toolz2/blob/master/art/Screenshot_2022-05-16-09-50-48-66.png)    
+|  ![](https://github.com/prime-zs/toolz2/blob/master/art/PlayStore1.png)    |  ![](https://github.com/prime-zs/toolz2/blob/master/art/PlayStore-2.png)    
 <br />
 
 ## 🛠 Built With
