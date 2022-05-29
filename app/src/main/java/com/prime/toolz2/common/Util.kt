@@ -7,10 +7,14 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.text.format.DateUtils.*
 import android.util.Log
 import android.util.TypedValue
+import android.view.Window
+import android.view.WindowInsets
+import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -310,4 +314,23 @@ val MediaMetadataRetriever.latLong: DoubleArray?
             doubleArrayOf(lat, lon)
         } else null
     }
+
+
+fun Window.toggleStatusBarState(hide: Boolean) {
+    when (hide) {
+        // Hide Status Bar.
+        true -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                insetsController?.hide(WindowInsets.Type.statusBars())
+            else
+                addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        }
+        else -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                insetsController?.show(WindowInsets.Type.statusBars())
+            else
+                clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        }
+    }
+}
 

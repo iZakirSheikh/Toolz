@@ -507,4 +507,11 @@
     <string name="backspace">backspace</string>
     <string name="dismiss">dismiss</string>
 
+    <string name="review_msg">if you enjoy using Toolz, please take a moment and rate it 5 stars on app store. Thanks for your support</string>
+    <string name="feedback_mail_subject">Feedback of %1$s</string>
+    <string name="new_update_msg">Toolz recommends that you update to the latest version. By downloading the latest version you will get latest features bug fixes, performance improvements etc.</string>
+
+    <string name="feedback_dialog_placeholder">Have feedback? We\'d love to hear it, but please don\'t share sensitive information.</string>
+    <string name="about_us_desc">Hello, I am  <b><i>Zakir Sheikh</i></b> . I Love to develop apps. I like my apps to be useful plus <b>aesthetically beautiful</b> . Send me your precious <b>feedback</b> to keep me informed about you requirements. Please don\'t forget to rate the app <b>5 Star</b> , because this keeps me motivated. </string>
+
 </resources>

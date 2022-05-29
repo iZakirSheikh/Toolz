@@ -12,6 +12,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.LocalElevationOverlay
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -19,8 +21,9 @@ import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.prime.toolz2.settings.PrefKeys
-import com.prime.toolz2.theme.Material
+import com.prime.toolz2.common.toggleStatusBarState
+import com.prime.toolz2.settings.GlobalKeys
+import com.prime.toolz2.settings.resolveAppThemeState
 import com.prime.toolz2.ui.Home
 import com.primex.preferences.Preferences
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,7 +59,7 @@ class MainActivity : ComponentActivity() {
 
             val sWindow = rememberWindowSizeClass()
 
-            Material(isDark = isSystemInDarkTheme()) {
+            Material(isDark = resolveAppThemeState()) {
                 ProvideWindowInsets(windowInsetsAnimationsEnabled = true) {
                     CompositionLocalProvider(
                         LocalElevationOverlay provides null,
@@ -73,7 +76,9 @@ class MainActivity : ComponentActivity() {
         preferences = Preferences.get(newBase!!)
         val configuration = Configuration()
         configuration.setToDefaults()
-        configuration.fontScale = with(preferences){get(PrefKeys.FONT_SCALE).obtain()}
+        configuration.fontScale = with(preferences){get(GlobalKeys.FONT_SCALE).obtain()}
+        // don't allow system to change ui mode.
+        configuration.uiMode = Configuration.UI_MODE_NIGHT_NO
         applyOverrideConfiguration(configuration)
         super.attachBaseContext(newBase)
     }

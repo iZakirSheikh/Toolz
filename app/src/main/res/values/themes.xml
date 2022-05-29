@@ -2,15 +2,16 @@
 <resources>
 
 
-
     <style name="Theme.Toolz" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.Splash" parent="Theme.SplashScreen">
         <item name="postSplashScreenTheme">@style/Theme.Toolz</item>
-        <item name="windowSplashScreenBackground">#FFFFFF</item>
+        <item name="windowSplashScreenBackground">#FFf8f8f8</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="android:windowFullscreen">true</item>
+        <!-- <item name="windowSplashScreenBrandingImage">@drawable/ic_angle</item>-->
         <!--  <item name="windowSplashScreenAnimationDuration">1000</item>-->
         <!-- <item name="windowSplashScreenIconBackgroundColor">#34FFFFFF</item>-->
     </style>

@@ -20,7 +20,7 @@ import kotlinx.serialization.json.Json
 
 private const val TAG = "PrefKeys"
 
-object PrefKeys {
+object GlobalKeys {
     /**
      * Retrieves/Sets The [NightMode] Strategy
      */
@@ -52,7 +52,7 @@ object PrefKeys {
     val HIDE_STATUS_BAR = booleanPreferenceKey(TAG + "_hide_status_bar", false)
 
     val LIGHT_COLORS = stringPreferenceKey(
-        name = TAG + "light_colors",
+        name = TAG + "_light_colors",
         defaultValue = DefaultLightColorScheme,
         saver = object : StringSaver<Colors> {
             override fun restore(value: String): Colors =
@@ -64,7 +64,7 @@ object PrefKeys {
     )
 
     val DARK_COLORS = stringPreferenceKey(
-        name = TAG + "dark_colors",
+        name = TAG + "_dark_colors",
         defaultValue = DefaultDarkColorScheme,
         saver = object : StringSaver<Colors> {
             override fun restore(value: String): Colors =
@@ -77,7 +77,7 @@ object PrefKeys {
 
 
     val GROUP_SEPARATOR = stringPreferenceKey(
-        name = TAG + "group_separator",
+        name = TAG + "_group_separator",
         defaultValue = ',',
         saver = object : StringSaver<Char> {
             override fun restore(value: String): Char = value[0]
@@ -87,17 +87,17 @@ object PrefKeys {
     )
 
     val DECIMAL_SEPARATOR = stringPreferenceKey(
-        name = TAG + "decimal_separator",
+        name = TAG + "_decimal_separator",
         defaultValue = "."
     )
 
     val NUMBER_OF_DECIMALS = intPreferenceKey(
-        name = TAG + "number_of_decimals",
+        name = TAG + "_number_of_decimals",
         defaultValue = 5
     )
 
     val FONT_SCALE = floatPreferenceKey(
-        TAG + "font_scale",
+        TAG + "_font_scale",
         defaultValue = 1.0f
     )
 }

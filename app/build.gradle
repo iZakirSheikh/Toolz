@@ -43,8 +43,13 @@ android {
             // needs to be removed
             // android team also released the latest technique for testing app with out
             // debug data; needs to study it further
-            // signingConfig signingConfigs.debug
+            signingConfig signingConfigs.debug
             //debuggable true
+        }
+
+        debug {
+            // makes it possible to install both release and debug versions in same device.
+            applicationIdSuffix ".debug"
         }
     }
     compileOptions {
@@ -109,7 +114,7 @@ dependencies {
     implementation "com.github.prime-zs:tools:$tools_version"
 
     // Splash Screen API
-    implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
+    implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
 
     // The Accompanist Libraries
     def accompanist_version = '0.24.9-beta'
@@ -128,7 +133,7 @@ dependencies {
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
     // Constraint Layout
-    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0"
+    implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
 
     // Safe Args Compose
     def safe_args_version = "2.4.0"
@@ -138,7 +143,7 @@ dependencies {
     implementation "com.github.levinzonr.compose-safe-routing:accompanist-navigation:$safe_args_version"
 
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:30.0.1')
+    implementation platform('com.google.firebase:firebase-bom:30.0.2')
 
     // Add the dependency for the Firebase SDK for Google Analytics
     // When using the BoM, don't specify versions in Firebase dependencies

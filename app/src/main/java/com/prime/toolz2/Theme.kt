@@ -1,4 +1,4 @@
-package com.prime.toolz2.theme
+package com.prime.toolz2
 
 import android.util.Log
 import androidx.compose.animation.animateColorAsState
@@ -17,9 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.prime.toolz2.R
 import com.prime.toolz2.common.compose.hsl
-import com.prime.toolz2.settings.PrefKeys
+import com.prime.toolz2.settings.GlobalKeys
 import com.prime.toolz2.settings.FontFamily
 import com.primex.preferences.Preferences
 import com.primex.widgets.*
@@ -61,7 +60,7 @@ private val padding =
         override val Large: Dp = 32.dp
     }
 
-val Material.padding: Padding get() = com.prime.toolz2.theme.padding
+val Material.padding: Padding get() = com.prime.toolz2.padding
 
 /**
  * Constructs the typography with the [fontFamily] provided with support for capitalizing.
@@ -98,7 +97,7 @@ private val caption2 = TextStyle(
 /**
  * A variant of caption
  */
-val Typography.caption2 get() = com.prime.toolz2.theme.caption2
+val Typography.caption2 get() = com.prime.toolz2.caption2
 
 
 val LocalSystemUiController = staticCompositionLocalOf<SystemUiController> {
@@ -116,11 +115,11 @@ val Material.CONTAINER_COLOR_ALPHA get() = 0.15f
 private val DefaultColorAnimSpec = tween<Color>(Anim.durationLong)
 
 /**
- * checks If [PrefKeys.FORCE_COLORIZE]
+ * checks If [GlobalKeys.FORCE_COLORIZE]
  */
 val Material.forceColorize
     @Composable inline get() = Preferences.get(LocalContext.current).run {
-        get(PrefKeys.FORCE_COLORIZE).observeAsState().value
+        get(GlobalKeys.FORCE_COLORIZE).observeAsState().value
     }
 
 private val small2 = RoundedCornerShape(8.dp)
@@ -128,7 +127,7 @@ private val small2 = RoundedCornerShape(8.dp)
 /**
  * A variant of Material shape with coroner's 8 dp
  */
-val Shapes.small2 get() = com.prime.toolz2.theme.small2
+val Shapes.small2 get() = com.prime.toolz2.small2
 
 /**
  * returns [primary] if [requires] is met else [elze].
@@ -187,11 +186,11 @@ val Colors.errorContainer
 val Colors.onErrorContainer @Composable inline get() = colors.error
 
 /**
- * Observes the coloring [PrefKeys.COLOR_STATUS_BAR] of status Bar.
+ * Observes the coloring [GlobalKeys.COLOR_STATUS_BAR] of status Bar.
  */
 val Material.colorStatusBar
     @Composable inline get() = Preferences.get(LocalContext.current).run {
-        get(PrefKeys.COLOR_STATUS_BAR).observeAsState().value
+        get(GlobalKeys.COLOR_STATUS_BAR).observeAsState().value
     }
 
 inline val Colors.overlay
@@ -259,6 +258,7 @@ private fun animate(
     )
 }
 
+@OptIn(ExperimentalComposeApi::class)
 @Composable
 fun Material(isDark: Boolean, content: @Composable() () -> Unit) {
     val context = LocalContext.current
@@ -267,12 +267,13 @@ fun Material(isDark: Boolean, content: @Composable() () -> Unit) {
     val preferences = Preferences.get(context = context)
 
     val colors = with(preferences) {
-        get(if (isDark) PrefKeys.DARK_COLORS else PrefKeys.LIGHT_COLORS).observeAsState().value
-        //animate(palette = palette, spec = tween(Anim.durationLong))
+        val palette =
+            get(if (isDark) GlobalKeys.DARK_COLORS else GlobalKeys.LIGHT_COLORS).observeAsState().value
+        animate(palette = palette, spec = tween(Anim.durationLong))
     }
 
     val fontFamily by with(preferences) {
-        preferences[PrefKeys.FONT_FAMILY].map { font ->
+        preferences[GlobalKeys.FONT_FAMILY].map { font ->
             when (font) {
                 FontFamily.SYSTEM_DEFAULT -> AndroidFontFamily.Default
                 FontFamily.PROVIDED -> ProvidedFontFamily
@@ -284,12 +285,15 @@ fun Material(isDark: Boolean, content: @Composable() () -> Unit) {
     }
     Log.i(TAG, "Material: $colors")
 
-    CompositionLocalProvider(LocalSystemUiController provides rememberSystemUiController()) {
+    val systemUiController = rememberSystemUiController()
+    CompositionLocalProvider(LocalSystemUiController provides systemUiController) {
         MaterialTheme(
             typography = Typography(fontFamily = fontFamily),
             content = content,
             colors = colors
         )
+        val hideStatusBar by with(preferences) { preferences[GlobalKeys.HIDE_STATUS_BAR].observeAsState() }
+        systemUiController.isStatusBarVisible = !hideStatusBar
     }
 }
 

@@ -3,6 +3,7 @@ package com.prime.toolz2.ui
 import android.content.Context
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -17,6 +18,8 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.prime.toolz2.R
 import com.prime.toolz2.common.compose.*
+import com.prime.toolz2.settings.Settings
+import com.prime.toolz2.settings.SettingsViewModel
 import com.prime.toolz2.ui.converter.Routes
 import com.prime.toolz2.ui.converter.UnitConverter
 import com.prime.toolz2.ui.converter.UnitConverterViewModel
@@ -71,7 +74,9 @@ fun Home() {
             AnimatedNavHost(
                 navController = LocalNavController.current,
                 startDestination = Routes.UnitConverter.route,
-                modifier = Modifier.padding(inner),
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(inner),
                 enterTransition = { scaleIn(initialScale = 0.96f) + fadeIn(tween(700)) },
                 exitTransition = { scaleOut(targetScale = 0.96f) + fadeOut(tween(700)) },
                 popEnterTransition = { fadeIn(animationSpec = tween(700)) },
@@ -81,6 +86,12 @@ fun Home() {
                     val viewModel = hiltViewModel<UnitConverterViewModel>()
                     UnitConverter(viewModel = viewModel)
                 }
+
+                composable(Routes.Settings) {
+                    val viewModel = hiltViewModel<SettingsViewModel>()
+                    Settings(viewModel = viewModel)
+                }
+
             }
         }
     }
