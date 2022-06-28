@@ -2,29 +2,27 @@ package com.prime.toolz2
 
 import LocalWindowSizeClass
 import android.animation.ObjectAnimator
-import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.LocalElevationOverlay
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.prime.toolz2.common.toggleStatusBarState
 import com.prime.toolz2.settings.GlobalKeys
-import com.prime.toolz2.settings.resolveAppThemeState
+import com.prime.toolz2.settings.NightMode
 import com.prime.toolz2.ui.Home
+import com.primex.preferences.LocalPreferenceStore
 import com.primex.preferences.Preferences
 import dagger.hilt.android.AndroidEntryPoint
 import rememberWindowSizeClass
@@ -58,31 +56,20 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             val sWindow = rememberWindowSizeClass()
-
-            Material(isDark = resolveAppThemeState()) {
-                ProvideWindowInsets(windowInsetsAnimationsEnabled = true) {
-                    CompositionLocalProvider(
-                        LocalElevationOverlay provides null,
-                        LocalWindowSizeClass provides sWindow
-                    ) {
+            CompositionLocalProvider(
+                LocalElevationOverlay provides null,
+                LocalWindowSizeClass provides sWindow,
+                LocalPreferenceStore provides preferences,
+                LocalSystemUiController provides rememberSystemUiController()
+            ) {
+                Material(isDark = resolveAppThemeState()) {
+                    ProvideWindowInsets(windowInsetsAnimationsEnabled = true) {
                         Home()
                     }
                 }
             }
         }
     }
-
-    override fun attachBaseContext(newBase: Context?) {
-        preferences = Preferences.get(newBase!!)
-        val configuration = Configuration()
-        configuration.setToDefaults()
-        configuration.fontScale = with(preferences){get(GlobalKeys.FONT_SCALE).obtain()}
-        // don't allow system to change ui mode.
-        configuration.uiMode = Configuration.UI_MODE_NIGHT_NO
-        applyOverrideConfiguration(configuration)
-        super.attachBaseContext(newBase)
-    }
-
 }
 
 
@@ -113,5 +100,18 @@ fun MainActivity.initSplashScreen(isColdStart: Boolean) {
                 // Run your animation.
                 alpha.start()
             }
+    }
+}
+
+
+@Composable
+private fun resolveAppThemeState(): Boolean {
+    val preferences = LocalPreferenceStore.current
+    val mode by with(preferences) {
+        preferences[GlobalKeys.NIGHT_MODE].observeAsState()
+    }
+    return when (mode) {
+        NightMode.YES -> true
+        else -> false
     }
 }

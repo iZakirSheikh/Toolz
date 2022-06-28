@@ -26,7 +26,6 @@ data class Preference<out P>(
     val summery: String? = null,
 )
 
-@OptIn(FlowPreview::class)
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val preferences: Preferences,
@@ -155,7 +154,8 @@ class SettingsViewModel @Inject constructor(
 }
 
 
-context (Preferences, ViewModel) private fun <T> Flow<T>.composeState(): State<T> {
+context (Preferences, ViewModel)
+        private fun <T> Flow<T>.composeState(): State<T> {
 
     val state = mutableStateOf(
         obtain()

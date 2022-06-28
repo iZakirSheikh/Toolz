@@ -2,6 +2,7 @@ package com.prime.toolz2.settings
 
 import android.app.Activity
 import android.content.Intent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -14,17 +15,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.prime.toolz2.Padding
 import com.prime.toolz2.R
 import com.prime.toolz2.common.compose.*
-import com.prime.toolz2.common.toggleStatusBarState
-import com.prime.toolz2.padding
 import com.prime.toolz2.primary
-import com.primex.preferences.Preferences
-import com.primex.widgets.*
+import com.primex.core.fadeEdge
+import com.primex.preferences.LocalPreferenceStore
+import com.primex.ui.*
+import cz.levinzonr.saferoute.accompanist.navigation.transitions.AnimatedRouteTransition
 import cz.levinzonr.saferoute.core.annotations.Route
+import cz.levinzonr.saferoute.core.annotations.RouteNavGraph
 import kotlinx.coroutines.launch
 
-private val RESERVE_PADDING = 56.dp
+private val RESERVE_PADDING = 48.dp
 
 private const val FONT_SCALE_LOWER_BOUND = 0.5f
 private const val FONT_SCALE_UPPER_BOUND = 2.0f
@@ -35,24 +38,24 @@ private const val ZERO_WIDTH_CHAR = '\u8203'
 
 @Composable
 private fun PrefHeader(text: String) {
-    val primary = Material.colors.primary
+    val primary = MaterialTheme.colors.primary
     Label(
         text = text,
         modifier = Modifier.padding(
             start = RESERVE_PADDING,
-            top = Material.padding.Large,
-            bottom = Material.padding.Medium
+            top = Padding.LARGE,
+            bottom = Padding.MEDIUM
         ),
         fontWeight = FontWeight.SemiBold,
         maxLines = 2,
-        color = Material.colors.primary
+        color = primary
     )
 
     Divider(
         modifier = Modifier.padding(
             start = RESERVE_PADDING,
-            end = Material.padding.Large,
-            bottom = Material.padding.Medium
+            end = Padding.LARGE,
+            bottom = Padding.MEDIUM
         ),
         color = primary.copy(0.12f)
     )
@@ -60,28 +63,27 @@ private fun PrefHeader(text: String) {
 
 @Composable
 private inline fun ColumnScope.AboutUs() {
-
-    val padding = Material.padding
     PrefHeader(text = "Feedback")
 
     // val feedbackCollector = LocalFeedbackCollector.current
-
     val onRequestFeedback = {
         // TODO: Handle feedback
     }
+
     Preference(
-        title = "Feedback",
+        title = stringResource(R.string.feedback),
         summery = stringResource(id = R.string.feedback_dialog_placeholder) + "\nTap to open feedback dialog.",
         icon = Icons.Outlined.Feedback,
         modifier = Modifier.clickable(onClick = onRequestFeedback)
     )
 
+
     val onRequestRateApp = {
         // TODO: Handle rate app.
     }
     Preference(
-        title = "Rate Us",
-        summery = stringResource(id = R.string.review_msg) + "\nTap to rate.",
+        title = stringResource(R.string.rate_us),
+        summery = stringResource(id = R.string.review_msg),
         icon = Icons.Outlined.Star,
         modifier = Modifier.clickable(onClick = onRequestRateApp)
     )
@@ -89,21 +91,20 @@ private inline fun ColumnScope.AboutUs() {
     val onRequestShareApp = {
         // TODO: Share app.
     }
-
     Preference(
-        title = "Spread a word",
-        summery = " As the saying goes 'Sharing is caring'. Please help the app grow by sharing it with friends, family and WhatsApp groups etc.",
+        title = stringResource(R.string.spread_the_word),
+        summery = stringResource(R.string.spread_the_word_summery),
         icon = Icons.Outlined.Share,
         modifier = Modifier.clickable(onClick = onRequestShareApp)
     )
 
-    PrefHeader(text = "About Us")
+    PrefHeader(text = stringResource(R.string.about_us))
     Text(
         text = stringHtmlResource(R.string.about_us_desc),
-        style = Material.typography.body2,
+        style = MaterialTheme.typography.body2,
         modifier = Modifier
-            .padding(start = RESERVE_PADDING, end = padding.Large)
-            .padding(vertical = padding.Small),
+            .padding(start = RESERVE_PADDING, end = Padding.LARGE)
+            .padding(vertical = Padding.SMALL),
         color = LocalContentColor.current.copy(ContentAlpha.medium)
     )
 
@@ -118,30 +119,39 @@ private inline fun ColumnScope.AboutUs() {
             //TODO: Check for update.
         }
     }
-
     Preference(
-        title = "App Version",
+        title = stringResource(R.string.app_version),
         summery = "$version \nClick to check for updates.",
         icon = Icons.Outlined.TouchApp,
         modifier = Modifier.clickable(onClick = onCheckUpdate)
     )
 }
 
-@Route
+private fun Activity.restart() {
+    finish()
+    startActivity(Intent(this, this.javaClass))
+    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Route(
+    transition = AnimatedRouteTransition.Default::class,
+    navGraph = RouteNavGraph(start = false)
+)
 @Composable
 fun Settings(viewModel: SettingsViewModel) {
     with(viewModel) {
         val topBar =
             @Composable {
                 val iNavActions = LocalNavController.current
-
-                val colorStatusBar by with(Preferences.get(LocalContext.current)){
+                val colorStatusBar by with(LocalPreferenceStore.current) {
                     this[GlobalKeys.COLOR_STATUS_BAR].observeAsState()
                 }
-                val darkIcons = !colorStatusBar && Material.isLight
-                val color = Material.colors.primary(colorStatusBar)
+                val darkIcons = !colorStatusBar && MaterialTheme.colors.isLight
+                val primaryOrElse = MaterialTheme.colors.primary(colorStatusBar)
+
                 TopAppBar(
-                    title = { Label(text = "Settings") },
+                    title = { Label(text = stringResource(R.string.settings)) },
                     navigationIcon = {
                         IconButton(onClick = { iNavActions.navigateUp() }) {
                             Icon(
@@ -152,29 +162,32 @@ fun Settings(viewModel: SettingsViewModel) {
                     },
                     modifier = Modifier
                         .statusBarsPadding2(
-                            color = color,
+                            color = primaryOrElse,
                             darkIcons = darkIcons
                         ),
-                    backgroundColor = color,
+                    backgroundColor = MaterialTheme.colors.primary(),
                     elevation = 12.dp
                 )
             }
 
         val content: @Composable ColumnScope.() -> Unit =
             @Composable {
-
-                PrefHeader(text = "Appearance")
+                PrefHeader(text = stringResource(R.string.appearence))
 
                 //dark mode
                 val darkTheme by darkUiMode
+
+                val onCheckedChange = { new: Boolean ->
+                    set(GlobalKeys.NIGHT_MODE, if (new) NightMode.YES else NightMode.NO)
+                }
+
                 SwitchPreference(
                     checked = darkTheme.value,
                     title = darkTheme.title,
                     summery = darkTheme.summery,
-                    icon = darkTheme.vector
-                ) {
-                    set(GlobalKeys.NIGHT_MODE, if (it) NightMode.YES else NightMode.NO)
-                }
+                    icon = darkTheme.vector,
+                    onCheckedChange = onCheckedChange
+                )
 
                 //font
                 val font by font
@@ -185,62 +198,76 @@ fun Settings(viewModel: SettingsViewModel) {
                     "serif" to FontFamily.SARIF,
                     "System default" to FontFamily.SYSTEM_DEFAULT
                 )
+                val onRequestChange = { family: FontFamily ->
+                    viewModel.set(GlobalKeys.FONT_FAMILY, family)
+                }
                 DropDownPreference(
                     title = font.title,
                     entries = familyList,
                     defaultValue = font.value,
-                    icon = font.vector
-                ) { new ->
-                    viewModel.set(GlobalKeys.FONT_FAMILY, new)
-                }
+                    icon = font.vector,
+                    onRequestChange = onRequestChange
+                )
 
                 val scale by fontScale
-                val activity = LocalContext.current.activity
-                FontScalePreference(
+                val onValueChange = { value: Float ->
+                    set(GlobalKeys.FONT_SCALE, value)
+                }
+                SliderPreference(
                     defaultValue = scale.value,
                     title = scale.title,
                     summery = scale.summery,
                     valueRange = FONT_SCALE_LOWER_BOUND..FONT_SCALE_UPPER_BOUND,
                     steps = SLIDER_STEPS,
-                    icon = scale.vector
-                ) {
-                    set(GlobalKeys.FONT_SCALE, it)
-                    activity?.restart()
-                }
-
-                //color status bar
-                val colorStatusBar by colorStatusBar
-                SwitchPreference(
-                    checked = colorStatusBar.value,
-                    title = colorStatusBar.title,
-                    summery = colorStatusBar.summery
-                ) {
-                    set(GlobalKeys.COLOR_STATUS_BAR, it)
-                }
-
-                //hide status bar
-                val hideStatusBar by hideStatusBar
-                SwitchPreference(
-                    checked = hideStatusBar.value,
-                    title = hideStatusBar.title,
-                    summery = hideStatusBar.summery
-                ) {
-                    set(GlobalKeys.HIDE_STATUS_BAR, it)
-                }
+                    icon = scale.vector,
+                    onValueChange = onValueChange,
+                    iconChange = Icons.Outlined.TextFormat
+                )
 
                 //force accent
                 val forceAccent by forceAccent
+                val onRequestForceAccent = { should: Boolean ->
+                    set(GlobalKeys.FORCE_COLORIZE, should)
+                    if (should)
+                        set(GlobalKeys.COLOR_STATUS_BAR, true)
+                }
                 SwitchPreference(
                     checked = forceAccent.value,
                     title = forceAccent.title,
-                    summery = forceAccent.summery
-                ) {
-                    set(GlobalKeys.FORCE_COLORIZE, it)
+                    summery = forceAccent.summery,
+                    onCheckedChange = onRequestForceAccent
+                )
+
+                //color status bar
+                val colorStatusBar by colorStatusBar
+                val onRequestColorChange = { should: Boolean ->
+                    set(GlobalKeys.COLOR_STATUS_BAR, should)
                 }
+                SwitchPreference(
+                    checked = colorStatusBar.value,
+                    title = colorStatusBar.title,
+                    summery = colorStatusBar.summery,
+                    onCheckedChange = onRequestColorChange,
+                    enabled = !forceAccent.value
+                )
+
+                //hide status bar
+                val hideStatusBar by hideStatusBar
+                val onRequestHideStatusBar = { should: Boolean ->
+                    set(GlobalKeys.HIDE_STATUS_BAR, should)
+                }
+                SwitchPreference(
+                    checked = hideStatusBar.value,
+                    title = hideStatusBar.title,
+                    summery = hideStatusBar.summery,
+                    onCheckedChange = onRequestHideStatusBar
+                )
+
+
+
 
                 // group separator
                 val separator by groupSeparator
-
                 val entries = listOf(
                     "Space  ( ) " to ' ',
                     "Hyphen (_) " to '_',
@@ -251,44 +278,26 @@ fun Settings(viewModel: SettingsViewModel) {
                     title = separator.title,
                     entries = entries,
                     defaultValue = separator.value,
-                    icon = separator.vector
-                ) { new ->
-                    viewModel.set(GlobalKeys.GROUP_SEPARATOR, new)
-                }
+                    icon = separator.vector,
+                    onRequestChange = {
+                        viewModel.set(GlobalKeys.GROUP_SEPARATOR, it)
+                    }
+                )
 
+                //About us section.
                 AboutUs()
             }
-
         // content
         Scaffold(topBar = topBar) {
             val state = rememberScrollState()
+            val color = if (MaterialTheme.colors.isLight) Color.White else Color.Black
             Column(
                 modifier = Modifier
                     .padding(it)
-                    .fadeEdge(state = state, length = 16.dp, horizontal = false)
+                    .fadeEdge(state = state, length = 16.dp, horizontal = false, color = color)
                     .verticalScroll(state),
                 content = content
             )
         }
     }
-}
-
-
-@Composable
-fun resolveAppThemeState(): Boolean {
-    val preferences = Preferences.get(LocalContext.current)
-    val mode by with(preferences) {
-        preferences[GlobalKeys.NIGHT_MODE].observeAsState()
-    }
-    return when (mode) {
-        NightMode.YES -> true
-        else -> false
-    }
-}
-
-
-private fun Activity.restart(){
-    finish();
-    startActivity( Intent(this, this.javaClass));
-    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 }

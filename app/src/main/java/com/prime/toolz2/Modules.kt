@@ -16,8 +16,8 @@ object AppModule {
     /**
      * Provides the Singleton Implementation of Preferences DataStore.
      */
-    // TODO: Try to implement Preferences using non-singleton Implementation.
     @Provides
     @Singleton
-    fun preferences(@ApplicationContext context: Context) = Preferences.get(context)
+    fun preferences(@ApplicationContext context: Context) = Preferences(context)
 }
+

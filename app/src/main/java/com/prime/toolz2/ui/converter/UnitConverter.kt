@@ -1,14 +1,12 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.prime.toolz2.ui.converter
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import android.util.Log
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -19,32 +17,40 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.prime.toolz2.*
+import com.prime.toolz2.Padding
 import com.prime.toolz2.R
 import com.prime.toolz2.common.compose.*
-import com.prime.toolz2.core.converter.Unet
 import com.prime.toolz2.core.math.NumUtil
 import com.prime.toolz2.settings.GlobalKeys
-import com.primex.preferences.Preferences
-import com.primex.widgets.*
+import com.prime.toolz2.settings.SettingsRoute
+import com.primex.core.VerticalGrid
+import com.primex.preferences.LocalPreferenceStore
 import cz.levinzonr.saferoute.core.annotations.Route
+import cz.levinzonr.saferoute.core.annotations.RouteNavGraph
+import cz.levinzonr.saferoute.core.navigateTo
 import kotlinx.coroutines.flow.map
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material.icons.outlined.Keyboard
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.*
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.input.*
+import com.prime.toolz2.core.converter.Unet
+import com.prime.toolz2.primaryContainer
+import com.primex.core.rememberState
+import com.primex.core.rotate
+import com.primex.ui.Label
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.util.*
 
@@ -84,7 +90,7 @@ private inline val NumberFormatTransformation: State<VisualTransformation>
     @Composable
     get() {
         //TODO: maybe consider using LocalComposition for preferences.
-        val preferences = Preferences.get(LocalContext.current)
+        val preferences = LocalPreferenceStore.current
         return with(preferences) {
             val initial = remember {
                 val value = preferences[GlobalKeys.GROUP_SEPARATOR].obtain()
@@ -100,15 +106,144 @@ private inline val NumberFormatTransformation: State<VisualTransformation>
         }
     }
 
-@Composable
-private fun UnitConverterViewModel.AppBar(modifier: Modifier = Modifier) {
+private val LightShadowColor =
+    Color(red = 1.0f, green = 1.0f, blue = 1.0f)
+private val DarkShadowColor =
+    Color(red = 0.820f, green = 0.851f, blue = 0.902f)
 
+private val DarkThemeLightShadowColor =
+    Color.Black.copy(0.5f)
+
+private val DarkThemeDarkShadowColor =
+    Color.White.copy(0.01f)
+
+private val buttons =
+    arrayOf(
+        R.string.digit_7,
+        R.string.digit_8,
+        R.string.digit_9,
+        null,
+        R.string.digit_4,
+        R.string.digit_5,
+        R.string.digit_6,
+        R.string.all_cleared,
+        R.string.digit_1,
+        R.string.digit_2,
+        R.string.digit_3,
+        R.string.backspace,
+        null,
+        R.string.dec_point,
+        R.string.digit_0,
+        R.string.swap,
+    )
+
+@Composable
+fun UnitConverterViewModel.NumPad(modifier: Modifier = Modifier) {
+    VerticalGrid(
+        columns = 4,
+        modifier = modifier
+    ) {
+        val buttonModifier =
+            Modifier
+                .padding(4.dp)
+                .fillMaxWidth()
+                .aspectRatio(1.0f)
+
+        val lightShadowColor =
+            if (MaterialTheme.colors.isLight) LightShadowColor else DarkThemeLightShadowColor
+        val darkShadowColor =
+            if (MaterialTheme.colors.isLight) DarkShadowColor else DarkThemeDarkShadowColor
+
+        @Composable
+        fun Text(text: String, size: TextUnit = 36.sp) {
+            Text(
+                text = text,
+                fontSize = size,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.wrapContentSize(),
+                color = LocalContentColor.current
+            )
+        }
+
+        val primary = MaterialTheme.colors.primary
+
+        @Composable
+        fun NeoButton(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
+            NeumorphicButton(
+                onClick = onClick,
+                modifier = buttonModifier,
+                content = content,
+                elevation = NeumorphicButtonDefaults.elevation(defaultElevation = 8.dp),
+                colors = NeumorphicButtonDefaults.neumorphicButtonColors(
+                    lightShadowColor = lightShadowColor,
+                    darkShadowColor = darkShadowColor
+                ),
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(8.dp)
+            )
+        }
+
+        @Composable
+        fun ColorNeoButton(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
+            NeumorphicButton(
+                onClick = onClick,
+                modifier = buttonModifier,
+                content = content,
+                elevation = NeumorphicButtonDefaults.elevation(defaultElevation = 8.dp),
+                colors = NeumorphicButtonDefaults.neumorphicButtonColors(
+                    backgroundColor = MaterialTheme.colors.primary,
+                    lightShadowColor = lightShadowColor,
+                    darkShadowColor = darkShadowColor
+                ),
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(8.dp)
+            )
+        }
+
+        val buttons = buttons
+        buttons.forEach { resId ->
+            when (resId) {
+                null -> Spacer(modifier = buttonModifier)
+                R.string.backspace -> NeoButton(onClick = { backspace() }) {
+                    Icon(
+                        imageVector = Icons.Outlined.KeyboardBackspace,
+                        contentDescription = null,
+                        modifier = Modifier.wrapContentSize(),
+                        tint = primary
+                    )
+                }
+                R.string.swap -> NeoButton(onClick = { swap() }) {
+                    Icon(
+                        imageVector = Icons.Outlined.SwapVert,
+                        contentDescription = null,
+                        modifier = Modifier.wrapContentSize(),
+                        tint = primary
+                    )
+                }
+                R.string.all_cleared -> ColorNeoButton(onClick = { clear() }) {
+                    Text(text = stringResource(id = resId), size = 20.sp)
+                }
+                else -> {
+                    val char = stringResource(id = resId)
+                    NeoButton(onClick = { append(char.first()) }) {
+                        Text(text = stringResource(id = resId))
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun AppBar(modifier: Modifier = Modifier) {
     // nav actions
     val actions = @Composable { _: RowScope ->
         val controller = LocalNavController.current
         val onRequestNavigate = {
-            val uri = Routes.Settings.route
-            controller.navigate(uri)
+            val direction = SettingsRoute()
+            controller.navigateTo(direction)
         }
 
         IconButton(
@@ -117,40 +252,31 @@ private fun UnitConverterViewModel.AppBar(modifier: Modifier = Modifier) {
             contentDescription = null
         )
     }
-
-    // observe converter
-    val converter by converter
     // nav icons
     val navIcon = @Composable {
         IconButton(
             onClick = { /*TODO*/ },
-            painter = painterResource(id = converter.drawableRes),
-            contentDescription = null
+            painter = painterResource(id = R.drawable.ic_handyman),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(horizontal = Padding.NORMAL)
+                .requiredSize(24.dp)
         )
     }
 
     // title column
     val title =
         @Composable {
-            Column {
-                Label(
-                    text = stringHtmlResource(id = R.string.unit_converter_html),
-                    fontWeight = FontWeight.Light,
-                )
-                // converter title
-                Crossfade(targetState = converter) { value ->
-                    Caption(
-                        text = stringResource(id = value.title),
-                        color = LocalContentColor.current.copy(ContentAlpha.disabled),
-                    )
-                }
-            }
+            Text(
+                text = stringHtmlResource(id = R.string.unit_converter_html),
+                fontWeight = FontWeight.Light,
+            )
         }
 
     TopAppBar(
         modifier = modifier, // sdp.
-        backgroundColor = Color.Transparent,
-        contentColor = LocalContentColor.current,
+        backgroundColor = MaterialTheme.colors.primary,
+        contentColor = MaterialTheme.colors.onPrimary,
         elevation = 0.dp,
         navigationIcon = navIcon,
         title = title,
@@ -158,15 +284,15 @@ private fun UnitConverterViewModel.AppBar(modifier: Modifier = Modifier) {
     )
 }
 
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun UnitConverterViewModel.Converters(modifier: Modifier = Modifier) {
-
-    val color = Material.colors.secondary(elze = LocalContentColor.current)
+    val color = MaterialTheme.colors.onPrimary
     val colors =
         ChipDefaults.filterChipColors(
-            backgroundColor = color.copy(alpha = 0.1f),
-            selectedBackgroundColor = color.copy(alpha = 0.15f),
+            backgroundColor = color.copy(alpha = 0.2f),
+            selectedBackgroundColor = color.copy(alpha = 0.35f),
             contentColor = color,
             selectedContentColor = color
         )
@@ -174,29 +300,25 @@ private fun UnitConverterViewModel.Converters(modifier: Modifier = Modifier) {
 
     // state to scroll to the selected one.
     val state = rememberLazyListState()
-
     val padding =
         PaddingValues(
-            horizontal = Material.padding.Normal,
-            vertical = Material.padding.Small
+            horizontal = Padding.NORMAL,
+            vertical = Padding.NORMAL
         )
 
     val converters = converters
     val current by converter
 
-    LazyRow(
-        modifier = modifier,
-        contentPadding = padding,
-        state = state
-    ) {
+    val content: LazyListScope.() -> Unit = {
         items(converters) { converter ->
-            val selected = current == converter
 
+            val selected = current == converter
             // The chip content
             val content: @Composable RowScope.() -> Unit = {
                 Icon(
                     painter = painterResource(id = converter.drawableRes),
-                    contentDescription = null
+                    contentDescription = null,
+                    modifier = Modifier.requiredSize(18.dp)
                 )
 
                 val text = stringResource(id = converter.title)
@@ -209,7 +331,6 @@ private fun UnitConverterViewModel.Converters(modifier: Modifier = Modifier) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
-
             // actual chip.
             FilterChip(
                 onClick = { converter(converter) },
@@ -221,11 +342,24 @@ private fun UnitConverterViewModel.Converters(modifier: Modifier = Modifier) {
             )
         }
     }
+
+    Surface(
+        color = MaterialTheme.colors.primary,
+        shape = RoundedCornerShape(bottomStartPercent = 100, bottomEndPercent = 0),
+        modifier = modifier
+    ) {
+        LazyRow(
+            contentPadding = padding,
+            state = state,
+            content = content,
+            modifier = Modifier.wrapContentHeight(Alignment.CenterVertically)
+        )
+    }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+
 @Composable
-private fun UnitConverterViewModel.DropDown(
+private fun DropDown(
     modifier: Modifier = Modifier,
     values: Map<Int, List<Unet>>,
     selected: Unet,
@@ -233,65 +367,80 @@ private fun UnitConverterViewModel.DropDown(
     OnUnitSelected: (new: Unet) -> Unit,
     field: @Composable () -> Unit
 ) {
+
+    val dividerAlpha = 0.1f
+
+    val listContent: @Composable ColumnScope.() -> Unit =
+        @Composable {
+
+            // the colors
+            val primary = MaterialTheme.colors.primary
+            val container = MaterialTheme.colors.primaryContainer
+            val secondary = MaterialTheme.colors.secondary
+
+            values.forEach { (id, list) ->
+                // emit the title of the group
+                Label(
+                    text = stringResource(id = id),
+                    modifier = Modifier.padding(
+                        start = Padding.NORMAL,
+                        top = Padding.SMALL,
+                        bottom = Padding.SMALL
+                    ),
+                    fontWeight = FontWeight.SemiBold,
+                    color = secondary,
+                    maxLines = 2
+                )
+                Divider(
+                    color = secondary.copy(dividerAlpha),
+                )
+
+                list.forEach { value ->
+                    val isChecked = selected == value
+                    val color = if (isChecked) primary else LocalContentColor.current
+                    val itemContent: @Composable RowScope.() -> Unit =
+                        @Composable {
+                            CompositionLocalProvider(LocalContentColor provides color) {
+                                Text(
+                                    text = stringResource(id = value.code),
+                                    style = MaterialTheme.typography.body1,
+                                    fontStyle = FontStyle.Italic,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = stringResource(id = value.title),
+                                    modifier = Modifier.padding(start = Padding.NORMAL),
+                                    style = MaterialTheme.typography.caption
+                                )
+                            }
+                        }
+                    //TODO find a way to support selected.
+                    DropdownMenuItem(
+                        onClick = { OnUnitSelected(value) },
+                        modifier = if (isChecked) Modifier.background(color = container) else Modifier,
+                        content = itemContent
+                    )
+
+                    // show divider only when checked.
+                    if (isChecked)
+                        Divider(color = color)
+                }
+            }
+        }
+
     val content: @Composable ExposedDropdownMenuBoxScope.() -> Unit =
         @Composable {
             // The field of that this menu exposes
             field()
-
-            // the colors
-            val primary = Material.colors.primary
-            val container = Material.colors.primaryContainer
-            val secondary = Material.colors.secondary
-            val padding = Material.padding
-
-            val content: @Composable ColumnScope.() -> Unit =
-                @Composable {
-                    values.forEach { (id, list) ->
-                        // emit the title of the group
-                        Header(
-                            text = stringResource(id = id),
-                            modifier = Modifier.padding(
-                                horizontal = padding.Normal,
-                                vertical = padding.Small
-                            ),
-                            color = secondary,
-                        )
-
-                        Divider(color = secondary.copy(ContentAlpha.Divider))
-
-                        list.forEach { value ->
-                            val isChecked = selected == value
-                            val color = if (isChecked) primary else LocalContentColor.current
-
-                            //TODO find a way to support selected.
-                            DropdownMenuItem(
-                                onClick = { OnUnitSelected(value) },
-                                modifier = if (isChecked) Modifier.background(color = container) else Modifier
-                            ) {
-                                CompositionLocalProvider(LocalContentColor provides color) {
-                                    Text(
-                                        text = stringResource(id = value.code),
-                                        style = Material.typography.body1,
-                                        fontStyle = FontStyle.Italic,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = stringResource(id = value.title),
-                                        modifier = Modifier.padding(start = Material.padding.Normal),
-                                    )
-                                }
-                            }
-                            Divider(color = color.copy(if (isChecked) 1.0f else ContentAlpha.Divider))
-                        }
-                    }
-                }
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { OnUnitSelected(selected) },
-                content = content,
+                content = listContent,
                 modifier = Modifier.exposedDropdownSize(true)
             )
         }
+
+
     //The actual menu.
     ExposedDropdownMenuBox(
         modifier = modifier,
@@ -301,7 +450,7 @@ private fun UnitConverterViewModel.DropDown(
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+
 @Composable
 private fun UnitConverterViewModel.UnitFrom(modifier: Modifier = Modifier) {
     Row(
@@ -312,7 +461,7 @@ private fun UnitConverterViewModel.UnitFrom(modifier: Modifier = Modifier) {
         //Header
         Text(
             text = "FROM",
-            style = Material.typography.overline,
+            style = MaterialTheme.typography.overline,
             modifier = Modifier
                 .rotate(false),
         )
@@ -326,7 +475,6 @@ private fun UnitConverterViewModel.UnitFrom(modifier: Modifier = Modifier) {
             @Composable {
                 val text by value
                 OutlinedTextField(
-                    readOnly = true,
                     value = text,
                     onValueChange = { },
                     label = { Text(stringResource(id = unit.title)) },
@@ -335,15 +483,17 @@ private fun UnitConverterViewModel.UnitFrom(modifier: Modifier = Modifier) {
                             expanded = true
                         }
                     },
-                    textStyle = Material.typography.h4.copy(
+                    textStyle = MaterialTheme.typography.h4.copy(
                         fontWeight = FontWeight.Medium,
                     ),
+                    readOnly = true,
                     singleLine = true,
                     enabled = true,
                     visualTransformation = visualTransformation,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(percent = 10),
-                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 )
             }
 
@@ -352,15 +502,16 @@ private fun UnitConverterViewModel.UnitFrom(modifier: Modifier = Modifier) {
         }
 
         DropDown(
+            modifier = Modifier.padding(start = Padding.MEDIUM),
             values = units,
             selected = unit,
-            OnUnitSelected = { from(it); expanded = false },
-            modifier = Modifier.padding(start = Material.padding.Medium),
             expanded = expanded,
+            OnUnitSelected = { from(it); expanded = false },
             field = field
         )
     }
 }
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -372,7 +523,7 @@ private fun UnitConverterViewModel.UnitTo(modifier: Modifier = Modifier) {
         //Header
         Text(
             text = "EQUALS TO",
-            style = Material.typography.overline,
+            style = MaterialTheme.typography.overline,
             modifier = Modifier
                 .rotate(false),
         )
@@ -406,25 +557,27 @@ private fun UnitConverterViewModel.UnitTo(modifier: Modifier = Modifier) {
                             expanded = true
                         }
                     },
-                    textStyle = Material.typography.h4,
+                    textStyle = MaterialTheme.typography.h4,
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = visualTransformation,
                     shape = RoundedCornerShape(topStartPercent = 10, topEndPercent = 10),
                     colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 )
             }
 
         DropDown(
+            modifier = Modifier.padding(start = Padding.MEDIUM),
             values = units,
             selected = unit,
-            OnUnitSelected = { toUnit(it); expanded = false },
             expanded = expanded,
-            modifier = Modifier.padding(start = Material.padding.Medium),
+            OnUnitSelected = { toUnit(it); expanded = false },
             field = field
         )
     }
 }
+
 
 @Composable
 private fun UnitConverterViewModel.AboutEquals(modifier: Modifier = Modifier) {
@@ -455,192 +608,14 @@ private fun UnitConverterViewModel.AboutEquals(modifier: Modifier = Modifier) {
         modifier = Modifier
             .horizontalScroll(state = rememberScrollState())
             .then(modifier),
-        style = Material.typography.body1,
+        style = MaterialTheme.typography.body1,
         fontWeight = FontWeight.W400,
         maxLines = 1,
     )
 }
 
-private val buttons =
-    arrayOf(
-        R.string.digit_7,
-        R.string.digit_8,
-        R.string.digit_9,
-        null,
-        R.string.digit_4,
-        R.string.digit_5,
-        R.string.digit_6,
-        R.string.all_cleared,
-        R.string.digit_1,
-        R.string.digit_2,
-        R.string.digit_3,
-        R.string.backspace,
-        null,
-        R.string.dec_point,
-        R.string.digit_0,
-        R.string.swap,
-    )
 
-private val LightShadowColor =
-    Color(red = 1.0f, green = 1.0f, blue = 1.0f)
-private val DarkShadowColor =
-    Color(red = 0.820f, green = 0.851f, blue = 0.902f)
-
-private val DarkThemeLightShadowColor =
-    Color.Black.copy(0.5f)
-
-private val DarkThemeDarkShadowColor =
-    Color.White.copy(0.01f)
-
-
-@Composable
-private fun UnitConverterViewModel.NumPad(modifier: Modifier = Modifier) {
-    VerticalGrid(
-        columns = 4,
-        modifier = modifier
-    ) {
-        val childModifier =
-            Modifier
-                .padding(1.dp)
-                .fillMaxWidth()
-                .aspectRatio(1.0f)
-
-        val lightShadowColor =
-            if (Material.colors.isLight) LightShadowColor else DarkThemeLightShadowColor
-        val darkShadowColor =
-            if (Material.colors.isLight) DarkShadowColor else DarkThemeDarkShadowColor
-
-        @Composable
-        fun Text(text: String, size: TextUnit = 44.sp) {
-            Text(
-                text = text,
-                fontSize = size,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.wrapContentSize(),
-                color = LocalContentColor.current
-            )
-        }
-
-        @Composable
-        fun ColorNeoButton(onClick: () -> Unit, content: @Composable () -> Unit) {
-            NeuButton(
-                onClick = onClick,
-                modifier = childModifier,
-                color = Material.colors.primary,
-                onColor = Material.colors.onPrimary,
-                content = content,
-                lightShadowColor = lightShadowColor,
-                darkShadowColor = darkShadowColor,
-            )
-        }
-
-
-        val primaryOrElse = Material.colors.primary(elze = LocalContentColor.current)
-        @Composable
-        fun NeoButton(onClick: () -> Unit, content: @Composable () -> Unit) {
-            NeuButton(
-                onClick = onClick,
-                modifier = childModifier,
-                onColor = primaryOrElse,
-                lightShadowColor = lightShadowColor,
-                darkShadowColor = darkShadowColor,
-                content = content,
-            )
-        }
-
-        val buttons = buttons
-        buttons.forEach { resId ->
-            when (resId) {
-                null -> Spacer(modifier = childModifier)
-                R.string.backspace -> ColorNeoButton(onClick = { backspace() }) {
-                    Icon(
-                        imageVector = Icons.Outlined.KeyboardBackspace,
-                        contentDescription = null,
-                        modifier = Modifier.wrapContentSize()
-                    )
-                }
-                R.string.swap -> ColorNeoButton(onClick = { swap() }) {
-                    Icon(
-                        imageVector = Icons.Outlined.SwapVert,
-                        contentDescription = null,
-                        modifier = Modifier.wrapContentSize()
-                    )
-                }
-                R.string.all_cleared -> ColorNeoButton(onClick = { clear() }) {
-                    Text(text = stringResource(id = resId), size = 24.sp)
-                }
-                else -> {
-                    val char = stringResource(id = resId)
-                    NeoButton(onClick = { append(char.first()) }) {
-                        Text(text = stringResource(id = resId))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun UnitConverterViewModel.Portrait(modifier: Modifier = Modifier) {
-    val padding = Material.padding
-
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        AppBar()
-
-        Divider(
-            thickness = 2.dp,
-            modifier = Modifier.padding(horizontal = padding.Large, vertical = padding.Small)
-        )
-
-        Converters(
-            modifier = Modifier.padding(vertical = padding.Medium)
-        )
-
-        UnitFrom(
-            modifier = Modifier.padding(
-                horizontal = 24.dp,
-            )
-        )
-
-        UnitTo(
-            modifier = Modifier.padding(
-                top = 12.dp,
-                start = 24.dp,
-                end = 24.dp
-            )
-        )
-
-        Text(
-            text = "About Equals",
-            style = Material.typography.h4,
-            modifier = Modifier
-                .padding(start = padding.Large, top = padding.Normal)
-                .align(Alignment.Start),
-            fontWeight = FontWeight.Light,
-        )
-
-        AboutEquals(
-            Modifier
-                .padding(start = padding.Large, top = padding.Small)
-                .align(Alignment.Start),
-        )
-
-        // capture unclaimed space
-        Spacer(modifier = Modifier.weight(1f))
-
-        NumPad(
-            modifier = Modifier
-                .padding(horizontal = 30.dp)
-                .wrapContentSize(Alignment.BottomCenter)
-        )
-    }
-}
-
-@Route
+@Route(navGraph = RouteNavGraph(start = true))
 @Composable
 fun UnitConverter(viewModel: UnitConverterViewModel) {
     with(viewModel) {
@@ -655,27 +630,137 @@ fun UnitConverter(viewModel: UnitConverterViewModel) {
             }
         }
 
-        val background = Material.colors.background
-        val isLight = Material.colors.isLight
+        val background = MaterialTheme.colors.primary
+        val isLight = false
 
         val modifier = Modifier.statusBarsPadding2(color = background, isLight)
-
-        Portrait(modifier)
+        LayoutVertical(modifier)
     }
 }
 
 
+@Composable
+private fun UnitConverterViewModel.ModelVerticalLayout(modifier: Modifier = Modifier) {
+    val state = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+
+    val sheet: @Composable ColumnScope.() -> Unit =
+        @Composable {
+            NumPad(
+                modifier = Modifier
+                    .padding(horizontal = 36.dp, vertical = Padding.MEDIUM)
+                    .wrapContentSize(Alignment.BottomCenter)
+            )
+        }
+
+    ModalBottomSheetLayout(
+        sheetContent = sheet,
+        sheetState = state,
+        modifier = modifier,
+        sheetBackgroundColor = MaterialTheme.colors.background,
+        scrimColor = Color.Transparent
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            VerticalTop()
+
+            // capture unclaimed space
+            Spacer(modifier = Modifier.weight(1f))
+
+            val scope = rememberCoroutineScope()
+            val onButtonClick = {
+                scope.launch {
+                    if (state.isVisible) state.hide() else state.show()
+                }
+                Unit
+            }
+
+            Button(
+                onClick = onButtonClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Padding.LARGE)
+            ) {
+                Icon(imageVector = Icons.Outlined.Keyboard, contentDescription = null)
+            }
+        }
+    }
+}
+
+@Composable
+private fun UnitConverterViewModel.FullVerticalLayout(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        VerticalTop()
+        // capture unclaimed space
+        Spacer(modifier = Modifier.weight(1f))
+
+        NumPad(
+            modifier = Modifier
+                .padding(horizontal = 36.dp)
+                .wrapContentSize(Alignment.BottomCenter)
+        )
+    }
+}
 
 
+@Composable
+private fun UnitConverterViewModel.LayoutVertical(modifier: Modifier = Modifier) {
+    BoxWithConstraints {
+        if (this.maxHeight < 600.dp)
+            ModelVerticalLayout(modifier)
+        else
+            FullVerticalLayout(modifier = modifier)
+    }
+}
 
+context (UnitConverterViewModel, ColumnScope)
+        @Composable
+        private fun VerticalTop() {
+    AppBar()
+    Converters()
 
+    val customTextSelectionColors = remember {
+        TextSelectionColors(
+            handleColor = Color.Transparent,
+            backgroundColor = Color.Transparent
+        )
+    }
 
+    CompositionLocalProvider(
+        LocalTextSelectionColors provides customTextSelectionColors
+    ) {
+        UnitFrom(
+            modifier = Modifier.padding(
+                horizontal = 24.dp,
+                vertical = Padding.NORMAL
+            )
+        )
+        UnitTo(
+            modifier = Modifier.padding(
+                //  top = 12.dp,
+                start = 24.dp,
+                end = 24.dp
+            )
+        )
+    }
 
+    Text(
+        text = "About Equals",
+        style = MaterialTheme.typography.h4,
+        modifier = Modifier
+            .padding(start = Padding.LARGE, top = Padding.NORMAL)
+            .align(Alignment.Start),
+        fontWeight = FontWeight.Light,
+    )
 
-
-
-
-
-
+    AboutEquals(
+        Modifier
+            .padding(start = Padding.LARGE, top = Padding.SMALL)
+            .align(Alignment.Start),
+    )
+}
 
 

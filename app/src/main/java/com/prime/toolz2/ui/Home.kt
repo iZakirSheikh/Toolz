@@ -8,23 +8,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.prime.toolz2.common.compose.LocalNavController
+import com.prime.toolz2.common.compose.LocalSnackDataChannel
+import com.prime.toolz2.settings.GlobalKeys
+import com.prime.toolz2.settings.Settings
+import com.prime.toolz2.settings.SettingsRoute
+import com.prime.toolz2.settings.SettingsViewModel
+import com.primex.preferences.LocalPreferenceStore
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.res.ResourcesCompat
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
 import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.prime.toolz2.R
-import com.prime.toolz2.common.compose.*
-import com.prime.toolz2.settings.Settings
-import com.prime.toolz2.settings.SettingsViewModel
-import com.prime.toolz2.ui.converter.Routes
-import com.prime.toolz2.ui.converter.UnitConverter
-import com.prime.toolz2.ui.converter.UnitConverterViewModel
+import com.google.accompanist.navigation.animation.composable
+import com.prime.toolz2.common.compose.Snack
+import com.prime.toolz2.common.compose.SnackDataChannel
 import kotlinx.coroutines.flow.receiveAsFlow
-
+import com.prime.toolz2.R
+import com.prime.toolz2.ui.converter.*
+import cz.levinzonr.saferoute.accompanist.navigation.SafeRouteAnimatedNavHost
+import cz.levinzonr.saferoute.core.*
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -40,7 +49,14 @@ fun Home() {
     val channel = remember { SnackDataChannel() }
 
     // The state of the Snackbar
-    val snackbar = remember { SnackbarHostState() }
+    val snackbar = remember {
+        SnackbarHostState()
+    }
+
+    val density = LocalDensity.current
+    val preferences = LocalPreferenceStore.current
+    val fontScale by with(preferences) { get(GlobalKeys.FONT_SCALE).observeAsState() }
+    val modified = Density(density = density.density, fontScale = fontScale)
 
     val context = LocalContext.current
 
@@ -68,12 +84,13 @@ fun Home() {
 
     CompositionLocalProvider(
         LocalNavController provides controller,
-        LocalSnackDataChannel provides channel
+        LocalSnackDataChannel provides channel,
+        LocalDensity provides modified
     ) {
         Scaffold(scaffoldState = rememberScaffoldState(snackbarHostState = snackbar)) { inner ->
             AnimatedNavHost(
                 navController = LocalNavController.current,
-                startDestination = Routes.UnitConverter.route,
+                startDestination = MainGraphRoutes.UnitConverter.route,
                 modifier = Modifier
                     .navigationBarsPadding()
                     .padding(inner),
@@ -82,20 +99,48 @@ fun Home() {
                 popEnterTransition = { fadeIn(animationSpec = tween(700)) },
                 popExitTransition = { fadeOut(animationSpec = tween(700)) }
             ) {
-                composable(Routes.UnitConverter) {
+                composable(MainGraphRoutes.UnitConverter) {
                     val viewModel = hiltViewModel<UnitConverterViewModel>()
                     UnitConverter(viewModel = viewModel)
                 }
 
-                composable(Routes.Settings) {
+                composable(MainGraphRoutes.Settings) {
                     val viewModel = hiltViewModel<SettingsViewModel>()
                     Settings(viewModel = viewModel)
                 }
-
             }
         }
     }
 }
+
+
+///missing fun
+@OptIn(ExperimentalAnimationApi::class)
+private fun NavGraphBuilder.composable(
+    spec: RouteSpec<*>,
+    enterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?)? = null,
+    exitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?)? = null,
+    popEnterTransition: (
+    AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?
+    )? = enterTransition,
+    popExitTransition: (
+    AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?
+    )? = exitTransition,
+    content: @Composable (NavBackStackEntry) -> Unit
+) = composable(
+    spec.route,
+    spec.navArgs,
+    spec.deepLinks,
+    enterTransition = enterTransition,
+    exitTransition = exitTransition,
+    popEnterTransition = popEnterTransition,
+    popExitTransition = popExitTransition
+) {
+    ProvideRouteSpecArgs(spec = spec, entry = it) {
+        content.invoke(it)
+    }
+}
+
 
 
 private fun Snack.dismantle(context: Context) =
