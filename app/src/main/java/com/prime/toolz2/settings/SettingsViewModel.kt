@@ -2,6 +2,7 @@
 
 package com.prime.toolz2.settings
 
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.outlined.HideImage
@@ -12,18 +13,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.primex.core.Text
 import com.primex.preferences.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class Preference<out P>(
     val value: P,
-    val title: String,
+    val title: Text,
     val vector: ImageVector? = null,
-    val summery: String? = null,
+    val summery: Text? = null,
 )
 
 @HiltViewModel
@@ -39,11 +43,11 @@ class SettingsViewModel @Inject constructor(
                         NightMode.YES -> true
                         else -> false
                     },
-                    title = "Dark Mode",
-                    summery = "Click to change the app night/light mode.",
+                    title = Text("Dark Mode"),
+                    summery = Text("Click to change the app night/light mode."),
                     vector = Icons.Outlined.Lightbulb
                 )
-            }.composeState()
+            }.collectAsState()
         }
 
     val font =
@@ -51,11 +55,11 @@ class SettingsViewModel @Inject constructor(
             preferences[GlobalKeys.FONT_FAMILY].map {
                 Preference(
                     vector = Icons.Default.TextFields,
-                    title = "Font",
-                    summery = "Choose font to better reflect your desires.",
+                    title = Text("Font"),
+                    summery = Text("Choose font to better reflect your desires."),
                     value = it
                 )
-            }.composeState()
+            }.collectAsState()
         }
 
     val colorStatusBar =
@@ -64,12 +68,12 @@ class SettingsViewModel @Inject constructor(
                 .map {
                     Preference(
                         vector = null,
-                        title = "Color Status Bar",
-                        summery = "Force color status bar.",
+                        title = Text("Color Status Bar"),
+                        summery = Text("Force color status bar."),
                         value = it
                     )
                 }
-                .composeState()
+                .collectAsState()
         }
 
     val hideStatusBar =
@@ -78,12 +82,12 @@ class SettingsViewModel @Inject constructor(
                 .map {
                     Preference(
                         value = it,
-                        title = "Hide Status Bar",
-                        summery = "hide status bar for immersive view",
+                        title = Text("Hide Status Bar"),
+                        summery = Text("hide status bar for immersive view"),
                         vector = Icons.Outlined.HideImage
                     )
                 }
-                .composeState()
+                .collectAsState()
         }
 
     val forceAccent =
@@ -92,11 +96,11 @@ class SettingsViewModel @Inject constructor(
                 .map {
                     Preference(
                         value = it,
-                        title = "Force Accent Color",
-                        summery = "Normally the app follows the rule of using 10% accent color. But if this setting is toggled it can make it use  more than 30%"
+                        title = Text("Force Accent Color"),
+                        summery = Text("Normally the app follows the rule of using 10% accent color. But if this setting is toggled it can make it use  more than 30%")
                     )
                 }
-                .composeState()
+                .collectAsState()
         }
 
 
@@ -106,12 +110,12 @@ class SettingsViewModel @Inject constructor(
                 .map {
                     Preference(
                         value = it,
-                        title = "Font Scale",
-                        summery = "Zoom in or out the text shown on the screen.",
+                        title = Text("Font Scale"),
+                        summery = Text("Zoom in or out the text shown on the screen."),
                         vector = Icons.Outlined.ZoomIn
                     )
                 }
-                .composeState()
+                .collectAsState()
         }
 
 
@@ -120,11 +124,11 @@ class SettingsViewModel @Inject constructor(
             preferences[GlobalKeys.GROUP_SEPARATOR].map {
                 Preference(
                     value = it,
-                    title = "Font Scale",
-                    summery = "Zoom in or out the text shown on the screen."
+                    title = Text("Font Scale"),
+                    summery = Text("Zoom in or out the text shown on the screen.")
                 )
             }
-                .composeState()
+                .collectAsState()
         }
 
 
@@ -151,11 +155,12 @@ class SettingsViewModel @Inject constructor(
             preferences[key] = value
         }
     }
+
+
 }
 
-
 context (Preferences, ViewModel)
-        private fun <T> Flow<T>.composeState(): State<T> {
+        private fun <T> Flow<T>.collectAsState(): State<T> {
 
     val state = mutableStateOf(
         obtain()
@@ -166,4 +171,3 @@ context (Preferences, ViewModel)
         .launchIn(viewModelScope)
     return state
 }
-

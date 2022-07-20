@@ -11,6 +11,8 @@ import androidx.compose.material.LocalElevationOverlay
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -19,6 +21,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import com.prime.toolz2.common.compose.LocalSystemUiController
 import com.prime.toolz2.settings.GlobalKeys
 import com.prime.toolz2.settings.NightMode
 import com.prime.toolz2.ui.Home
@@ -51,21 +54,26 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-
         // actual compose content.
         setContent {
 
             val sWindow = rememberWindowSizeClass()
+
+            // observe the change to density
+            val density = LocalDensity.current
+            val fontScale by with(preferences) { get(GlobalKeys.FONT_SCALE).observeAsState() }
+            val modified = Density(density = density.density, fontScale = fontScale)
+
+
             CompositionLocalProvider(
                 LocalElevationOverlay provides null,
                 LocalWindowSizeClass provides sWindow,
                 LocalPreferenceStore provides preferences,
-                LocalSystemUiController provides rememberSystemUiController()
+                LocalSystemUiController provides rememberSystemUiController(),
+                LocalDensity provides modified
             ) {
                 Material(isDark = resolveAppThemeState()) {
-                    ProvideWindowInsets(windowInsetsAnimationsEnabled = true) {
-                        Home()
-                    }
+                    Home()
                 }
             }
         }

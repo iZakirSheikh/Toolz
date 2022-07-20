@@ -1,32 +1,39 @@
 package com.prime.toolz2.core.converter
 
+
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.prime.toolz2.core.math.UnifiedReal
+import com.primex.core.Text
 
 
 //TODO: Replace string resources plurals in futuure versions.
-
 interface Unet {
-    /**
-     * The title of the Unit.
-     */
-    val title: Int
-
-    /**
-     * The short name of the Unit
-     */
-    val code: Int
-
     /**
      * The unique Id of this unit in the converter.
      */
     val uuid: String
 
     /**
+     * The title of the Unit.
+     */
+    val title: Text
+
+    /**
+     * The short name of the Unit
+     */
+    val code: Text
+
+    /**
      * The name resource of the group to which this unit belongs; e.g., SI, BTS etc.
      */
-    val group: Int
+    val group: Text
+
+    /**
+     * The optional iconRes [DrawableRes] of the unit
+     */
+    val icon: Int?
+    get() = null
 
     /**
      * Consumes value in Unit and returns value in [base] unit
@@ -42,34 +49,15 @@ interface Unet {
     suspend fun toUnit(value: UnifiedReal): UnifiedReal
 }
 
-@Suppress("FunctionName")
-fun Unit(
-    uuid: String,
-    @StringRes group: Int,
-    @StringRes title: Int,
-    @StringRes code: Int,
-    inBase: UnifiedReal
-) = object : Unet {
-    override val title: Int = title
-    override val code: Int = code
-    override val uuid: String = uuid
-    override val group: Int = group
 
-    override suspend fun toBase(value: UnifiedReal): UnifiedReal {
-        return value.multiply(inBase)
-    }
 
-    override suspend fun toUnit(value: UnifiedReal): UnifiedReal {
-        return value.divide(inBase)
-    }
-}
 
 interface Converter {
 
     /**
      * The title of the Unit.
      */
-    val title: Int
+    val title: Text
 
     /**
      * The resource icon associated with this converter.
@@ -102,11 +90,40 @@ fun Converter(
     @DrawableRes drawableRes: Int,
     units: Array<Unet>,
 ) = object : Converter {
-    override val title: Int = title
+    override val title: Text = Text(title)
     override val drawableRes: Int = drawableRes
     override val uuid: String = uuid
     override val units: Array<Unet> = units
 }
+
+/**
+ * Constructs the Unit for the Converter
+ */
+@Suppress("FunctionName")
+fun Unit(
+    uuid: String,
+    @StringRes group: Int,
+    @StringRes title: Int,
+    @StringRes code: Int,
+    inBase: UnifiedReal,
+    @DrawableRes icon: Int? = null
+) =
+    object : Unet {
+        override val uuid: String = uuid
+        override val title: Text = Text(title)
+        override val code: Text = Text(code)
+        override val group: Text = Text(group)
+        override val icon: Int? = icon
+
+        override suspend fun toBase(value: UnifiedReal): UnifiedReal {
+            return value.multiply(inBase)
+        }
+
+        override suspend fun toUnit(value: UnifiedReal): UnifiedReal {
+            return value.divide(inBase)
+        }
+    }
+
 
 
 interface UnitConverter {
@@ -183,7 +200,6 @@ private class UnitConverterImpl : UnitConverter {
             Speed()
         )
 
-
     override var value: UnifiedReal = UnifiedReal.ZERO
 
     override var converter: Converter = converters[0] // length
@@ -206,5 +222,6 @@ private class UnitConverterImpl : UnitConverter {
         }
 
 }
+
 
 fun UnitConverter(): UnitConverter = UnitConverterImpl()
