@@ -2,7 +2,7 @@
     <string name="app_name">@string/unit_converter_html</string>
 
     <!--The name for the unit converter as spannable string-->
-    <string name="unit_converter_html"><b>Unit</b>\nConverter</string>
+    <string name="unit_converter_html"><small><b>Unit</b></small>\nConverter</string>
 
     <!--Unit Converter-->
     <string name="length">Length</string>

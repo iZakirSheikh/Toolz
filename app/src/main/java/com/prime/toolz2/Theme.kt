@@ -168,18 +168,21 @@ val MaterialTheme.colorStatusBar
     }
 
 inline val Colors.overlay
-    @Composable get() = (if (isLight) Color.Black else Color.White).copy(0.04f)
+    get() = (if (isLight) Color.Black else Color.White).copy(0.04f)
+
+inline val Colors.outline
+    get() = (if (isLight) Color.Black else Color.White).copy(0.12f)
 
 val Colors.onOverlay
     @Composable inline get() =
         (colors.onBackground).copy(alpha = ContentAlpha.medium)
 
 val Colors.lightShadowColor
-    @Composable inline get() =
+    inline get() =
         if (isLight) Color.White else Color.White.copy(0.025f)
 
 val Colors.darkShadowColor
-    @Composable inline get() =
+    inline get() =
         if (isLight) Color(0xFFAEAEC0).copy(0.7f) else Color.Black.copy(0.6f)
 
 

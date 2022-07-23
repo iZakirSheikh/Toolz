@@ -24,10 +24,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.prime.toolz2.Material
+import com.prime.toolz2.*
 import com.prime.toolz2.R
 import com.prime.toolz2.common.compose.*
-import com.prime.toolz2.primary
 import com.primex.core.drawHorizontalDivider
 import com.primex.core.stringHtmlResource
 import com.primex.ui.*
@@ -174,6 +173,8 @@ private fun TopAppBar(modifier: Modifier = Modifier) {
         },
         shape = CircleShape,
         elevation = ContentElevation.low,
+        lightShadowColor = Material.colors.lightShadowColor,
+        darkShadowColor = Material.colors.darkShadowColor
     )
 }
 
