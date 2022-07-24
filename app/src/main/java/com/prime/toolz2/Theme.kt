@@ -7,17 +7,14 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.systemuicontroller.SystemUiController
+import com.prime.toolz2.common.compose.LongDurationMills
 import com.prime.toolz2.settings.FontFamily
 import com.prime.toolz2.settings.GlobalKeys
-import com.prime.toolz2.ui.*
 import com.primex.core.hsl
 import com.primex.preferences.LocalPreferenceStore
 import com.primex.ui.*
@@ -26,30 +23,20 @@ import androidx.compose.ui.text.font.FontFamily as AndroidFontFamily
 
 private const val TAG = "Theme"
 
+typealias Material = MaterialTheme
+
 /**
  * An Extra font family.
  */
-val ProvidedFontFamily =
+private val ProvidedFontFamily =
     AndroidFontFamily(
         //light
         Font(R.font.lato_light, FontWeight.Light),
         //normal
         Font(R.font.lato_regular, FontWeight.Normal),
-        //medium
-        Font(R.font.lato_bold, FontWeight.Medium),
+        //bold
+        Font(R.font.lato_bold, FontWeight.Bold),
     )
-
-
-object Padding {
-
-    val SMALL: Dp = 4.dp
-
-    val MEDIUM: Dp = 8.dp
-
-    val NORMAL: Dp = 16.dp
-
-    val LARGE: Dp = 32.dp
-}
 
 /**
  * Constructs the typography with the [fontFamily] provided with support for capitalizing.
@@ -88,21 +75,10 @@ private val caption2 = TextStyle(
  */
 val Typography.caption2 get() = com.prime.toolz2.caption2
 
-
-val LocalSystemUiController = staticCompositionLocalOf<SystemUiController> {
-    error("No ui controller defined!!")
-}
-
-
 /**
  * The alpha of the container colors.
  */
 val MaterialTheme.CONTAINER_COLOR_ALPHA get() = 0.15f
-
-/**
- * The default [Color] change Spec
- */
-private val DefaultColorAnimSpec = tween<Color>(750)
 
 /**
  * checks If [GlobalKeys.FORCE_COLORIZE]
@@ -161,7 +137,7 @@ fun Colors.onSecondary(
     if (requires) MaterialTheme.colors.onSecondary else elze
 
 val Colors.surfaceVariant
-    @Composable inline get() = colors.surface.hsl(lightness = if (isLight) 0.94f else 0.01f)
+    @Composable inline get() = colors.surface.hsl(lightness = if (isLight) 0.94f else 0.06f)
 
 /**
  * Primary container is applied to elements needing less emphasis than primary
@@ -193,15 +169,26 @@ val MaterialTheme.colorStatusBar
     }
 
 inline val Colors.overlay
-    @Composable get() = (if (isLight) Color.Black else Color.White).copy(0.04f)
+    get() = (if (isLight) Color.Black else Color.White).copy(0.04f)
+
+inline val Colors.outline
+    get() = (if (isLight) Color.Black else Color.White).copy(0.12f)
 
 val Colors.onOverlay
     @Composable inline get() =
         (colors.onBackground).copy(alpha = ContentAlpha.medium)
 
+val Colors.lightShadowColor
+    inline get() =
+        if (isLight) Color.White else Color.White.copy(0.025f)
 
-private val defaultPrimaryColor = Color.MetroGreen
-private val defaultSecondaryColor = Color.SkyBlue
+val Colors.darkShadowColor
+    inline get() =
+        if (isLight) Color(0xFFAEAEC0).copy(0.7f) else Color.Black.copy(0.6f)
+
+
+private val defaultPrimaryColor = Color(0xFF5600E8)
+private val defaultSecondaryColor = Color.Amber
 
 private val defaultThemeShapes =
     Shapes(
@@ -216,13 +203,13 @@ fun Material(isDark: Boolean, content: @Composable () -> Unit) {
     val preferences = LocalPreferenceStore.current
 
     val background by animateColorAsState(
-        targetValue = if (isDark) Color(0xFF0E0E0F) else Color(0xFFECF0F3),
-        animationSpec = tween(750)
+        targetValue = if (isDark) Color(0xFF0E0E0F) else Color(0xFFF5F5FA),
+        animationSpec = tween(AnimationConstants.LongDurationMills)
     )
 
     val surface by animateColorAsState(
         targetValue = if (isDark) Color.TrafficBlack else Color.White,
-        animationSpec = tween(750)
+        animationSpec = tween(AnimationConstants.LongDurationMills)
     )
 
     val primary = defaultPrimaryColor
@@ -237,7 +224,7 @@ fun Material(isDark: Boolean, content: @Composable () -> Unit) {
         secondaryVariant = secondary.blend(Color.Black, 0.2f),
         onPrimary = Color.SignalWhite,
         onSurface = if (isDark) Color.SignalWhite else Color.UmbraGrey,
-        onBackground = if (isDark) Color.SignalWhite else Color.UmbraGrey,
+        onBackground = if (isDark) Color.SignalWhite else Color.Black,
         error = Color.OrientRed,
         onSecondary = Color.SignalWhite,
         onError = Color.SignalWhite,
@@ -258,9 +245,7 @@ fun Material(isDark: Boolean, content: @Composable () -> Unit) {
 
     MaterialTheme(
         colors = colors,
-        typography = Typography(
-            defaultFontFamily = fontFamily
-        ),
+        typography = Typography(fontFamily),
         shapes = defaultThemeShapes,
         content = content
     )

@@ -3,16 +3,17 @@ package com.prime.toolz2.core.converter
 import com.prime.toolz2.R
 import com.prime.toolz2.core.math.BoundedRational
 import com.prime.toolz2.core.math.UnifiedReal
+import com.primex.core.Text
 
 
 private const val TAG = "Temperature"
 
 @Suppress("FunctionName")
 private fun Celsius() = object : Unet {
-    override val title: Int = R.string.celsius
-    override val code: Int = R.string.code_celsius
+    override val title: Text = Text(R.string.celsius)
+    override val code: Text = Text(R.string.code_celsius)
     override val uuid: String = TAG + "_celsius"
-    override val group: Int = R.string.system_international
+    override val group: Text = Text(R.string.system_international)
 
     override suspend fun toBase(value: UnifiedReal): UnifiedReal = value
 
@@ -22,10 +23,10 @@ private fun Celsius() = object : Unet {
 
 @Suppress("FunctionName")
 private fun Fahrenheit() = object : Unet {
-    override val title: Int = R.string.fahrenheit
-    override val code: Int = R.string.code_fahrenheit
+    override val title: Text = Text(R.string.fahrenheit)
+    override val code: Text = Text(R.string.code_fahrenheit)
     override val uuid: String = TAG + "_fahrenheit"
-    override val group: Int = R.string.united_system_customary_system
+    override val group: Text = Text(R.string.united_system_customary_system)
 
     override suspend fun toBase(value: UnifiedReal): UnifiedReal =
         value.subtract(UnifiedReal(32)).multiply(UnifiedReal(BoundedRational(5, 9)))
@@ -38,10 +39,10 @@ private fun Fahrenheit() = object : Unet {
 
 @Suppress("FunctionName")
 private fun Kelvin() = object : Unet {
-    override val title: Int = R.string.kelvin
-    override val code: Int = R.string.code_kelvin
+    override val title: Text = Text(R.string.kelvin)
+    override val code: Text = Text(R.string.code_kelvin)
     override val uuid: String = TAG + "_kelvin"
-    override val group: Int = R.string.system_international
+    override val group: Text = Text(R.string.system_international)
 
     override suspend fun toBase(value: UnifiedReal) =
         value.subtract(UnifiedReal(BoundedRational(27315, 100)))
@@ -52,10 +53,10 @@ private fun Kelvin() = object : Unet {
 
 @Suppress("FunctionName")
 private fun Rankine() = object : Unet {
-    override val title: Int = R.string.rankine
-    override val code: Int = R.string.code_rankine
+    override val title: Text = Text(R.string.rankine)
+    override val code: Text = Text(R.string.code_rankine)
     override val uuid: String = TAG + "_rankine"
-    override val group: Int = R.string.imperial_system_us
+    override val group: Text = Text(R.string.imperial_system_us)
 
     override suspend fun toBase(value: UnifiedReal) =
         value.subtract(UnifiedReal(BoundedRational(49167, 100)))
@@ -69,10 +70,10 @@ private fun Rankine() = object : Unet {
 
 @Suppress("FunctionName")
 private fun Delisle() = object : Unet {
-    override val title: Int = R.string.delisle
-    override val code: Int = R.string.code_delisle
+    override val title: Text = Text(R.string.delisle)
+    override val code: Text = Text(R.string.code_delisle)
     override val uuid: String = TAG + "_delisle"
-    override val group: Int = R.string.unknown
+    override val group: Text = Text(R.string.unknown)
 
     override suspend fun toBase(value: UnifiedReal) =
         UnifiedReal(100).subtract(value.multiply(UnifiedReal(BoundedRational(2, 3))))
@@ -83,10 +84,10 @@ private fun Delisle() = object : Unet {
 
 @Suppress("FunctionName")
 private fun Newton() = object : Unet {
-    override val title: Int = R.string.newton
-    override val code: Int = R.string.code_newton
+    override val title: Text = Text(R.string.newton)
+    override val code: Text = Text(R.string.code_newton)
     override val uuid: String = TAG + "_newton"
-    override val group: Int = R.string.unknown
+    override val group: Text = Text(R.string.unknown)
 
     override suspend fun toBase(value: UnifiedReal) =
         value.multiply(UnifiedReal(BoundedRational(100, 33)))
@@ -98,10 +99,10 @@ private fun Newton() = object : Unet {
 
 @Suppress("FunctionName")
 private fun Reaumur() = object : Unet {
-    override val title: Int = R.string.reaumur
-    override val code: Int = R.string.code_reaumur
+    override val title: Text = Text(R.string.reaumur)
+    override val code: Text = Text(R.string.code_reaumur)
     override val uuid: String = TAG + "_reaumur"
-    override val group: Int = R.string.unknown
+    override val group: Text = Text(R.string.unknown)
 
     override suspend fun toBase(value: UnifiedReal) =
         value.multiply(UnifiedReal(BoundedRational(5, 4)))
@@ -113,10 +114,10 @@ private fun Reaumur() = object : Unet {
 
 @Suppress("FunctionName")
 private fun Romer() = object : Unet {
-    override val title: Int = R.string.romer
-    override val code: Int = R.string.code_romer
+    override val title: Text = Text(R.string.romer)
+    override val code: Text = Text(R.string.code_romer)
     override val uuid: String = TAG + "_romer"
-    override val group: Int = R.string.unknown
+    override val group: Text = Text(R.string.unknown)
 
     override suspend fun toBase(value: UnifiedReal) =
         value.subtract(UnifiedReal(BoundedRational(75, 10)))

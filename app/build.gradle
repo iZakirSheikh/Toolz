@@ -14,8 +14,8 @@ android {
         applicationId "com.prime.toolz2"
         minSdk 21
         targetSdk 32
-        versionCode 5
-        versionName "1.0.0-alpha03"
+        versionCode 31
+        versionName "1.0.0-alpha04"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -61,14 +61,16 @@ android {
         useIR = true
         freeCompilerArgs = [
                 "-Xopt-in=kotlin.RequiresOptIn",
-                "-Xcontext-receivers"
+                "-Xcontext-receivers",
+                "-Xuse-k2",
+                "-Xjdk-release=1.8"
         ]
     }
     buildFeatures {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerExtensionVersion '1.2.0-rc02'
     }
     packagingOptions {
         resources {
@@ -78,16 +80,19 @@ android {
 }
 
 dependencies {
-    //Android KTX is a set of Kotlin extensions that are included with Android Jetpack and other Android libraries.
+    //Android KTX is a set of Kotlin extensions that are included with Android Jetpack
+    // and other Android libraries.
     implementation 'androidx.core:core-ktx:1.8.0'
+    //implementation 'com.google.android.material:material:1.6.1'
 
+    def compose_version = '1.3.0-alpha01'
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0'
 
     // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.4.0'
+    implementation 'androidx.activity:activity-compose:1.5.0'
     //implementation 'androidx.exifinterface:exifinterface:1.3.3'
 
     //tests
@@ -110,14 +115,14 @@ dependencies {
     implementation "com.airbnb.android:lottie-compose:$lottieVersion"
 
     //Preferences and other widgets
-    def accomplice_version = '1.0.0-alpha02'
+    def accomplice_version = '1.0.0-alpha06'
     implementation "com.github.prime-zs:accomplice:$accomplice_version"
 
     // Splash Screen API
     implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
 
     // The Accompanist Libraries
-    def accompanist_version = '0.24.12-rc'
+    def accompanist_version = '0.24.13-rc'
     implementation "com.google.accompanist:accompanist-insets:$accompanist_version"
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
@@ -150,4 +155,18 @@ dependencies {
 
     // for support of multiple screen sizes
     implementation "androidx.window:window:1.0.0"
+
+    // This dependency is downloaded from the Google’s Maven repository.
+    // So, make sure you also include that repository in your project's build.gradle file.
+    implementation("com.google.android.play:app-update:2.0.0")
+    // For Kotlin users also import the Kotlin extensions library for Play In-App Update:
+    implementation("com.google.android.play:app-update-ktx:2.0.0")
+
+    // This dependency is downloaded from the Google’s Maven repository.
+    // So, make sure you also include that repository in your project's build.gradle file.
+    implementation("com.google.android.play:review:2.0.0")
+
+    // For Kotlin users also import the Kotlin extensions library for Play In-App Review:
+    implementation("com.google.android.play:review-ktx:2.0.0")
+
 }

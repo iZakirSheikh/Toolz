@@ -1,22 +1,21 @@
 package com.prime.toolz2.ui.converter
 
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.neverEqualPolicy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prime.toolz2.common.compose.SnackDataChannel
 import com.prime.toolz2.common.compose.send
-import com.prime.toolz2.core.converter.Converter
-import com.prime.toolz2.core.converter.Unet
 import com.prime.toolz2.core.converter.UnitConverter
+import com.prime.toolz2.core.math.NumUtil
 import com.prime.toolz2.core.math.UnifiedReal
+import com.primex.core.Text
 import com.primex.preferences.Preferences
 import com.primex.preferences.stringPreferenceKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 import javax.inject.Inject
 
 
@@ -40,6 +39,12 @@ class UnitConverterViewModel @Inject constructor(
 ) : ViewModel() {
 
     /**
+     * The version of this [ViewModel].
+     * Update to this triggers calculation.
+     */
+    private val version = MutableStateFlow(0)
+
+    /**
      * The messenger used to show messages on the UI.
      */
     @JvmField
@@ -54,35 +59,6 @@ class UnitConverterViewModel @Inject constructor(
      * The all of converters supported by [engine]
      */
     val converters = engine.converters
-
-    /**
-     * The value to  be converted.
-     * The Max length = [MAX_ALLOWED_CHARS]
-     */
-    private val _value = mutableStateOf(
-        with(preferences) {
-            val text = get(KEY_VALUE).obtain() ?: DEFAULT_VALUE
-            text
-        }
-    )
-    val value: State<String> = _value
-
-    /**
-     * The computed result.
-     */
-    private val _result = mutableStateOf(UnifiedReal.ZERO, neverEqualPolicy())
-    val result: State<UnifiedReal> = _result
-
-    /**
-     * The value of converter in terms of other units.
-     */
-    private val _more = mutableStateOf<Map<Unet, UnifiedReal>>(emptyMap(), neverEqualPolicy())
-    val more: State<Map<Unet, UnifiedReal>> = _more
-
-    /**
-     * The trigger triggers the calculation.
-     */
-    private val trigger = MutableStateFlow(0)
 
     /**
      * The converter.
@@ -100,15 +76,32 @@ class UnitConverterViewModel @Inject constructor(
             selected
         }
     )
-    val converter: State<Converter> = _converter
+    var converter
+        get() = _converter.value
+        set(value) {
+            // update the representation of the converter
+            _converter.value = value
+            // update the converter of the engine.
+            engine.converter = value
+            //update uuiD saved
+            val uuid = value.uuid
+            preferences[KEY_CONVERTER] = uuid
+            // as converter changed
+            // obviously unit from and to too changed.
+            fromUnit = engine.from
+            toUnit = engine.to
+
+            // update version to trigger calculation
+            version.value += 1
+        }
 
     /**
-     * Unit from
+     * The unit from.
      */
     private val _fromUnit = mutableStateOf(
         with(preferences) {
             val uuid = get(KEY_UNIT_FROM).obtain() ?: engine.from.uuid
-            val units = converter.value.units
+            val units = _converter.value.units
 
             // obtain selected unit.
             val selected = units.find { it.uuid == uuid }!!
@@ -120,7 +113,19 @@ class UnitConverterViewModel @Inject constructor(
             selected
         }
     )
-    val fromUnit: State<Unet> = _fromUnit
+
+    var fromUnit
+        get() = _fromUnit.value
+        set(value) {
+            viewModelScope.launch {
+                // units of the converter
+                engine.from = value
+                _fromUnit.value = value
+                preferences[KEY_UNIT_FROM] = value.uuid
+                // update trigger
+                version.value += 1
+            }
+        }
 
     /**
      * To Unit
@@ -128,7 +133,7 @@ class UnitConverterViewModel @Inject constructor(
     private val _toUnit = mutableStateOf(
         with(preferences) {
             val uuid = get(KEY_UNIT_TO).obtain() ?: engine.to.uuid
-            val units = converter.value.units
+            val units = _converter.value.units
 
             // obtain selected unit.
             val selected = units.find { it.uuid == uuid }!!
@@ -140,115 +145,114 @@ class UnitConverterViewModel @Inject constructor(
             selected
         }
     )
-    val toUnit: State<Unet> = _toUnit
 
-    fun converter(value: Converter) {
-        viewModelScope.launch {
-            // set the converter.
-            engine.converter = value
-            // update converter.
-            // so to update the UI
-            _converter.value = value
-
-            //update uuiD saved
-            val uuid = value.uuid
-            preferences[KEY_CONVERTER] = uuid
-
-            // change units
-            from(engine.from)
-            toUnit(engine.to)
-
-            // update trigger
-            trigger.value += 1
-            /*channel?.send(
-                message = "Changing Converter."
-            )*/
-        }
-    }
-
-    fun from(value: Unet) {
-        viewModelScope.launch {
-            // units of the converter
-            engine.from = value
-            _fromUnit.value = value
-            preferences[KEY_UNIT_FROM] = value.uuid
-            // update trigger
-            trigger.value += 1
-        }
-    }
-
-    fun toUnit(value: Unet) {
-        viewModelScope.launch {
-            // units of the converter
-            engine.to = value
-            _toUnit.value = value
-            preferences[KEY_UNIT_TO] = value.uuid
-            // update trigger
-            trigger.value += 1
-        }
-    }
-
-    fun append(char: Char){
-        viewModelScope.launch {
-            val old = value.value
-            val new = if (old == DEFAULT_VALUE) "$char" else "$old$char"
-            value(new)
-        }
-    }
-
-    fun value(new: String) {
-        viewModelScope.launch {
-            val msg = when {
-                new.length > MAX_ALLOWED_CHARS -> "Max allowed digits reached."
-                // if it is not a valid double.
-                new.toDoubleOrNull() == null -> "Provided input is invalid."
-                else -> null
+    var toUnit
+        get() = _toUnit.value
+        set(value) {
+            viewModelScope.launch {
+                // units of the converter
+                engine.to = value
+                _toUnit.value = value
+                preferences[KEY_UNIT_TO] = value.uuid
+                // update trigger
+                version.value += 1
             }
-
-            if (msg != null) {
-                channel?.send(message = msg)
-                return@launch
-            }
-
-            // emit value.
-            _value.value = new
-            // update trigger
-            trigger.value += 1
-            preferences[KEY_VALUE] = new
         }
-    }
 
+    /**
+     * The value to  be converted.
+     * The Max length = [MAX_ALLOWED_CHARS]
+     */
+    private val _value = mutableStateOf(
+        with(preferences) {
+            val text = get(KEY_VALUE).obtain() ?: DEFAULT_VALUE
+            text
+        }
+    )
+    var value
+        get() = _value.value
+        set(value) {
+            viewModelScope.launch {
+                // preserve default value.
+                val modified = when {
+                    value.isBlank() -> DEFAULT_VALUE
+                    // old is default value
+                    value[0] == DEFAULT_VALUE[0] -> value.drop(1)
+                    else -> value
+                }
+
+                // check for error
+                // emit without saving
+                val msg =
+                    when {
+                        modified.length > MAX_ALLOWED_CHARS -> "Max allowed length reached."
+                        // if it is not a valid double.
+                        modified.toDoubleOrNull() == null -> "Provided input is invalid."
+                        else -> null
+                    }
+
+                // if error
+                // emit message and return
+                if (msg != null) {
+                    channel?.send(message = msg)
+                    return@launch
+                }
+
+                // emit value.
+                _value.value = modified
+                // update trigger
+                version.value += 1
+                //safe in prefs.
+                preferences[KEY_VALUE] = modified
+            }
+        }
+
+    /**
+     * The computed result.
+     */
+    private val _result = mutableStateOf(DEFAULT_VALUE)
+    var result
+        get() = _result.value
+        private set(value) {
+            _result.value = value
+        }
+
+    /**
+     * The value of converter in terms of other units.
+     */
+    private val _more = mutableStateOf<Map<Text, String>>(emptyMap())
+    var more
+        get() = _more.value
+        private set(value) {
+            _more.value = value
+        }
+
+    /**
+     * A convince method to swap the values of the [fromUnit] and [toUnit]
+     */
     fun swap() {
-        val from = toUnit.value
-        val to = fromUnit.value
         // from as to
-        from(from)
-        toUnit(to)
+        val from = _toUnit.value
+        val to = _fromUnit.value
+
+        fromUnit = from
+        toUnit = to
         viewModelScope.launch {
             channel?.send(message = "Units Swapped!")
         }
     }
 
     fun clear() {
-        value(DEFAULT_VALUE)
+        value = DEFAULT_VALUE
         viewModelScope.launch {
             channel?.send(message = "Input cleared")
         }
     }
 
-
-    fun backspace() {
-        val old = value.value
-        value(
-            if (old.length == 1)
-                DEFAULT_VALUE
-            else
-                old.dropLast(1)
-        )
-    }
+    private val formatter = DecimalFormat("###,###.##")
 
     init {
-        trigger
+        version
             .debounce(DEBOUNCE_TIMEOUT)
             .onEach { _ ->
                 // set value as unified
@@ -259,16 +263,18 @@ class UnitConverterViewModel @Inject constructor(
                 engine.value = UnifiedReal(value)
 
                 // compute and emit result.
-                val result = engine.convert()
-                _result.value = result
+                val double = engine.convert().doubleValue()
+                result = NumUtil.doubleToString(double, 12, 2)!!
 
                 // compute in terms of others.
                 // this might take time,
                 // use helper threads if possible.
-                val mapped = engine.mapped(0.1f)
-                _more.value = mapped
+                more = engine.mapped(0.1f)
+                    .mapKeys { it.key.code }
+                    .mapValues { formatter.format(it.value.doubleValue()) }
             }
             .catch {
+                // FixMe find suitable method to emit the errors.
                 channel?.send(message = "Oops!! An Unknown error occurred.")
             }
             .launchIn(viewModelScope)
