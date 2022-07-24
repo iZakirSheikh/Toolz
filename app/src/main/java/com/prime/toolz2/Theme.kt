@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.prime.toolz2.common.compose.LongDurationMills
 import com.prime.toolz2.settings.FontFamily
 import com.prime.toolz2.settings.GlobalKeys
 import com.primex.core.hsl
@@ -203,12 +204,12 @@ fun Material(isDark: Boolean, content: @Composable () -> Unit) {
 
     val background by animateColorAsState(
         targetValue = if (isDark) Color(0xFF0E0E0F) else Color(0xFFF5F5FA),
-        animationSpec = tween(AnimationConstants.DefaultDurationMillis)
+        animationSpec = tween(AnimationConstants.LongDurationMills)
     )
 
     val surface by animateColorAsState(
         targetValue = if (isDark) Color.TrafficBlack else Color.White,
-        animationSpec = tween(AnimationConstants.DefaultDurationMillis)
+        animationSpec = tween(AnimationConstants.LongDurationMills)
     )
 
     val primary = defaultPrimaryColor

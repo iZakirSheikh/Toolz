@@ -1,5 +1,6 @@
 package com.prime.toolz2.common.compose
 
+import android.app.Activity
 import android.content.res.Resources
 import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,8 +22,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
+import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.android.play.core.ktx.installStatus
+import com.google.android.play.core.review.ReviewManager
 import com.primex.core.Text
 import com.primex.core.resolve
+import com.primex.core.runCatching
 import com.primex.core.spannedResource
 
 /**
@@ -206,3 +214,61 @@ inline fun Resources.stringResource(res: Text) = resolve(res)
 
 @JvmName("stringResource1")
 inline fun Resources.stringResource(res: Text?) = resolve(res)
+
+
+val LocalAppUpdateManager =
+    compositionLocalOf<AppUpdateManager> {
+        error("No  Local App Update Manager set.")
+    }
+
+val LocalAppReviewManager =
+    compositionLocalOf<ReviewManager> {
+        error("No Local Review Manager set. ")
+    }
+
+private const val TAG = "Util"
+
+fun AppUpdateManager.check(
+    activity: Activity,
+    resultCode: Int,
+    report: Boolean = false,
+    emit: (snack: Snack) -> Unit
+){
+    // obtain the task for each check
+    val task = appUpdateInfo
+    task.addOnSuccessListener { info ->
+        val availability = info.updateAvailability()
+        val status = info.installStatus
+        emit(Snack("$status"))
+        when(availability){
+            UpdateAvailability.UNKNOWN ->  emit(Snack("Unknown error occurred!. $availability"))
+
+            UpdateAvailability.UPDATE_NOT_AVAILABLE ->
+                emit(Snack("App is already updated to latest version."))
+
+            // UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS ->
+            // resume or start new
+            else -> {
+                val downloaded = info.bytesDownloaded()
+
+                // in case it is 0 to avoid exception.
+                val total = info.totalBytesToDownload() + 1
+                val progress =  downloaded / total  * 100
+                emit(Snack("Downloaded: $progress"))
+                // update is available
+                //FixMe - Add way to manually adjust flexibility.
+                //val isFlexible = (info.clientVersionStalenessDays ?: -1) <= FLEXIBLE_UPDATE_STALENESS_DAYS
+                val isFlexible = info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
+                val options =  if (isFlexible) AppUpdateType.FLEXIBLE else AppUpdateType.IMMEDIATE
+                emit(Snack("$options"))
+                runCatching(TAG){
+                    startUpdateFlowForResult(info, options, activity,  resultCode)
+                }
+            }
+
+        }
+    }
+    task.addOnFailureListener {
+        emit(Snack("Unknown error occured: ${it.message}"))
+    }
+}

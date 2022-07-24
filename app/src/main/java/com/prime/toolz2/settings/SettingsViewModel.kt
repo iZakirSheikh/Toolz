@@ -124,8 +124,8 @@ class SettingsViewModel @Inject constructor(
             preferences[GlobalKeys.GROUP_SEPARATOR].map {
                 Preference(
                     value = it,
-                    title = Text("Font Scale"),
-                    summery = Text("Zoom in or out the text shown on the screen.")
+                    title = Text("Group Separator"),
+                    summery = Text("Set the number group separator.")
                 )
             }
                 .collectAsState()

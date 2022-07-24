@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.prime.toolz2.*
 import com.prime.toolz2.R
 import com.prime.toolz2.common.compose.*
+import com.primex.core.activity
 import com.primex.core.drawHorizontalDivider
 import com.primex.core.stringHtmlResource
 import com.primex.ui.*
@@ -138,9 +139,18 @@ private inline fun AboutUs() {
     }
     //val updateNotifier = LocalUpdateNotifier.current
     val scope = rememberCoroutineScope()
+    val activity = LocalContext.current.activity!!
+    val manager = LocalAppUpdateManager.current
+    val channel = LocalSnackDataChannel.current
     val onCheckUpdate: () -> Unit = {
         scope.launch {
-            //TODO: Check for update.
+            scope.launch {
+                manager.check(
+                    channel,
+                    activity,
+                    true,
+                )
+            }
         }
     }
     Preference(
