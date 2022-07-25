@@ -23,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.AppUpdateResult
 import com.google.android.play.core.ktx.requestAppUpdateInfo
@@ -103,7 +104,7 @@ class MainActivity : ComponentActivity() {
                    activity = this@MainActivity
                )
 
-               val isAvailable =  mAppUpdateManager.appUpdateInfo.result.updateAvailability()  ==
+               val isAvailable =  mAppUpdateManager.requestAppUpdateInfo().updateAvailability()  ==
                        UpdateAvailability.UPDATE_AVAILABLE
                // don't ask
                // if update is available
@@ -233,9 +234,8 @@ suspend fun AppUpdateManager.check(
 ) {
     requestUpdateFlow().collect { result ->
         when (result) {
-            AppUpdateResult.NotAvailable ->
-                if (report)
-                    channel.send("The app is already updated to the latest version.")
+            AppUpdateResult.NotAvailable -> if (report)
+                channel.send("The app is already updated to the latest version.")
 
             is AppUpdateResult.InProgress -> {
                 //FixMe: Publish progress

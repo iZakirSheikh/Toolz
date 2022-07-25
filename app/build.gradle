@@ -14,7 +14,7 @@ android {
         applicationId "com.prime.toolz2"
         minSdk 21
         targetSdk 32
-        versionCode 31
+        versionCode 36
         versionName "1.0.0-alpha04"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -44,7 +44,7 @@ android {
             // android team also released the latest technique for testing app with out
             // debug data; needs to study it further
             // signingConfig signingConfigs.debug
-            //debuggable true
+            // debuggable true
         }
 
         debug {
