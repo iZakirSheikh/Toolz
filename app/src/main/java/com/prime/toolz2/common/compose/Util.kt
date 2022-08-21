@@ -24,10 +24,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
-import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.installStatus
 import com.google.android.play.core.review.ReviewManager
+import com.prime.toolz2.common.billing.BillingManager
 import com.primex.core.Text
 import com.primex.core.resolve
 import com.primex.core.runCatching
@@ -215,15 +215,9 @@ inline fun Resources.stringResource(res: Text) = resolve(res)
 @JvmName("stringResource1")
 inline fun Resources.stringResource(res: Text?) = resolve(res)
 
-
-val LocalAppUpdateManager =
-    compositionLocalOf<AppUpdateManager> {
-        error("No  Local App Update Manager set.")
-    }
-
-val LocalAppReviewManager =
-    compositionLocalOf<ReviewManager> {
-        error("No Local Review Manager set. ")
+val LocalBillingManager =
+    compositionLocalOf<BillingManager> {
+        error("No Local BillingClient set. ")
     }
 
 private const val TAG = "Util"
