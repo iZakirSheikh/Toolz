@@ -2,14 +2,11 @@ package com.prime.toolz2.ui.converter
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,10 +15,7 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FileCopy
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.SwapVerticalCircle
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,6 +34,9 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.prime.toolz2.*
 import com.prime.toolz2.R
 import com.prime.toolz2.common.compose.*
@@ -110,6 +107,7 @@ private inline val NumberFormatTransformation: State<VisualTransformation>
         }
     }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun AppBarTop(
     modifier: Modifier = Modifier
@@ -130,24 +128,6 @@ private fun AppBarTop(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(start = ContentPadding.large, end = ContentPadding.normal)
         ) {
-            // title
-            Text(
-                text = stringHtmlResource(id = R.string.unit_converter_html),
-                fontWeight = FontWeight.Light,
-                modifier = Modifier.weight(1f),
-                style = Material.typography.h5
-            )
-
-            // actions
-            val controller = LocalNavController.current
-            IconButton(
-                imageVector = Icons.Outlined.Settings,
-                contentDescription = null,
-                onClick = {
-                    val direction = SettingsRoute()
-                    controller.navigateTo(direction)
-                }
-            )
 
             // app icon
             // TODO: Replace it with buy option.
@@ -158,6 +138,51 @@ private fun AppBarTop(
                 modifier = Modifier
                     .padding(horizontal = ContentPadding.normal)
                     .requiredSize(24.dp)
+            )
+
+            // title
+            Text(
+                text = stringHtmlResource(id = R.string.unit_converter_html),
+                fontWeight = FontWeight.Light,
+                modifier = Modifier.weight(1f),
+                style = Material.typography.h5
+            )
+
+            val manager = LocalBillingManager.current
+            val activity = LocalContext.current.activity!!
+            val purchased by manager.isPurchased(id = BillingTokens.DISABLE_ASD_IN_APP_PRODUCT)
+            if (!purchased)
+                Surface(
+                    onClick = {
+                        manager.launchBillingFlow(
+                            activity,
+                            BillingTokens.DISABLE_ASD_IN_APP_PRODUCT
+                        )
+                    },
+                    color = Color.Transparent,
+                    shape = CircleShape,
+                    content = {
+                        LottieAnimation(
+                            composition = rememberLottieComposition(
+                                spec = LottieCompositionSpec.RawRes(R.raw.remove_ads)
+                            ).value,
+                            modifier = Modifier
+                                .padding(6.dp)
+                                .requiredSize(30.dp),
+                            iterations = Int.MAX_VALUE,
+                        )
+                    }
+                )
+
+            // actions
+            val controller = LocalNavController.current
+            IconButton(
+                imageVector = Icons.Outlined.Settings,
+                contentDescription = null,
+                onClick = {
+                    val direction = SettingsRoute()
+                    controller.navigateTo(direction)
+                }
             )
         }
     }
@@ -177,7 +202,7 @@ private fun Tab(
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by TabTransition.
-    val ripple = rememberRipple(bounded = false, color = Material.colors.secondary)
+    val ripple = rememberRipple(bounded = false)
     Column(
         modifier = modifier
             .clip(Material.shapes.small)
@@ -187,10 +212,12 @@ private fun Tab(
                 enabled = true,
                 role = Role.Tab,
                 interactionSource = remember(::MutableInteractionSource),
-                indication = ripple
+                indication = null
             )
             .padding(ContentPadding.small)
-            .width(62.dp),
+            .width(62.dp)
+            .wrapContentHeight(),
+
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Surface(
@@ -225,9 +252,10 @@ private fun UnitConverterViewModel.Converters(
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val current = converter
+    val activity = LocalContext.current.activity!!
     LazyRow(
         contentPadding = contentPadding,
-        modifier = modifier.height(80.dp),
+        modifier = modifier,
         content = {
             items(converters) { item ->
                 val selected = item == current
@@ -235,7 +263,7 @@ private fun UnitConverterViewModel.Converters(
                     title = item.title,
                     imageRes = item.drawableRes,
                     selected = selected,
-                    onClick = { converter = item }
+                    onClick = { converter = item; activity.launchReviewFlow() }
                 )
             }
         }
@@ -648,7 +676,7 @@ fun UnitConverter(viewModel: UnitConverterViewModel) {
                     Spacer(modifier = Modifier.weight(1f))
 
                     ColoredOutlineButton(
-                        onClick = { swap() },
+                        onClick = { swap(); },
                         shape = CircleShape,
 
                         modifier = Modifier

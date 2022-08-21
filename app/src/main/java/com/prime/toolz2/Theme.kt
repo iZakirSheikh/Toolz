@@ -188,7 +188,7 @@ val Colors.darkShadowColor
 
 
 private val defaultPrimaryColor = Color(0xFF5600E8)
-private val defaultSecondaryColor = Color.Amber
+private val defaultSecondaryColor = Color.MetroGreen
 
 private val defaultThemeShapes =
     Shapes(

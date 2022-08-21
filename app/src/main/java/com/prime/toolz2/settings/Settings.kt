@@ -17,7 +17,6 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -34,7 +33,6 @@ import com.primex.ui.*
 import cz.levinzonr.saferoute.accompanist.navigation.transitions.AnimatedRouteTransition
 import cz.levinzonr.saferoute.core.annotations.Route
 import cz.levinzonr.saferoute.core.annotations.RouteNavGraph
-import kotlinx.coroutines.launch
 
 
 private val RESERVE_PADDING = 56.dp
@@ -138,20 +136,10 @@ private inline fun AboutUs() {
         context.packageManager.getPackageInfo(context.packageName, 0).versionName
     }
     //val updateNotifier = LocalUpdateNotifier.current
-    val scope = rememberCoroutineScope()
     val activity = LocalContext.current.activity!!
-    val manager = LocalAppUpdateManager.current
     val channel = LocalSnackDataChannel.current
     val onCheckUpdate: () -> Unit = {
-        scope.launch {
-            scope.launch {
-                manager.check(
-                    channel,
-                    activity,
-                    true,
-                )
-            }
-        }
+        activity.launchUpdateFlow(channel, true)
     }
     Preference(
         title = stringResource(R.string.app_version),
@@ -229,6 +217,7 @@ fun Settings(viewModel: SettingsViewModel) {
                     PrefHeader(text = stringResource(R.string.appearence))
 
                     //dark mode
+                    val activity = LocalContext.current.activity!!
                     val darkTheme by darkUiMode
                     SwitchPreference(
                         checked = darkTheme.value,
@@ -237,6 +226,7 @@ fun Settings(viewModel: SettingsViewModel) {
                         icon = darkTheme.vector,
                         onCheckedChange = { new: Boolean ->
                             set(GlobalKeys.NIGHT_MODE, if (new) NightMode.YES else NightMode.NO)
+                            activity.launchReviewFlow()
                         }
                     )
 
