@@ -3,10 +3,7 @@ package com.prime.toolz2.common.compose
 import android.app.Activity
 import android.content.res.Resources
 import androidx.compose.animation.core.AnimationConstants
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
@@ -27,7 +24,7 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.installStatus
 import com.google.android.play.core.review.ReviewManager
-import com.prime.toolz2.common.billing.BillingManager
+import com.prime.toolz2.billing.BillingManager
 import com.primex.core.Text
 import com.primex.core.resolve
 import com.primex.core.runCatching
@@ -227,15 +224,15 @@ fun AppUpdateManager.check(
     resultCode: Int,
     report: Boolean = false,
     emit: (snack: Snack) -> Unit
-){
+) {
     // obtain the task for each check
     val task = appUpdateInfo
     task.addOnSuccessListener { info ->
         val availability = info.updateAvailability()
         val status = info.installStatus
         emit(Snack("$status"))
-        when(availability){
-            UpdateAvailability.UNKNOWN ->  emit(Snack("Unknown error occurred!. $availability"))
+        when (availability) {
+            UpdateAvailability.UNKNOWN -> emit(Snack("Unknown error occurred!. $availability"))
 
             UpdateAvailability.UPDATE_NOT_AVAILABLE ->
                 emit(Snack("App is already updated to latest version."))
@@ -247,16 +244,16 @@ fun AppUpdateManager.check(
 
                 // in case it is 0 to avoid exception.
                 val total = info.totalBytesToDownload() + 1
-                val progress =  downloaded / total  * 100
+                val progress = downloaded / total * 100
                 emit(Snack("Downloaded: $progress"))
                 // update is available
                 //FixMe - Add way to manually adjust flexibility.
                 //val isFlexible = (info.clientVersionStalenessDays ?: -1) <= FLEXIBLE_UPDATE_STALENESS_DAYS
                 val isFlexible = info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
-                val options =  if (isFlexible) AppUpdateType.FLEXIBLE else AppUpdateType.IMMEDIATE
+                val options = if (isFlexible) AppUpdateType.FLEXIBLE else AppUpdateType.IMMEDIATE
                 emit(Snack("$options"))
-                runCatching(TAG){
-                    startUpdateFlowForResult(info, options, activity,  resultCode)
+                runCatching(TAG) {
+                    startUpdateFlowForResult(info, options, activity, resultCode)
                 }
             }
 
@@ -266,3 +263,29 @@ fun AppUpdateManager.check(
         emit(Snack("Unknown error occured: ${it.message}"))
     }
 }
+
+
+fun Modifier.padding(
+    horizontal: Dp,
+    top: Dp = 0.dp,
+    bottom: Dp = 0.dp
+) = this.then(
+    Modifier.padding(
+        start = horizontal,
+        end = horizontal,
+        top = top,
+        bottom = bottom
+    )
+)
+
+/*
+fun Modifier.padding(
+    vertical: Dp,
+    start: Dp = 0.dp,
+    end: Dp = 0.dp
+) = Modifier.padding(
+    start = start,
+    end = end,
+    top = vertical,
+    bottom = vertical
+)*/

@@ -217,7 +217,6 @@ fun Settings(viewModel: SettingsViewModel) {
                     PrefHeader(text = stringResource(R.string.appearence))
 
                     //dark mode
-                    val activity = LocalContext.current.activity!!
                     val darkTheme by darkUiMode
                     SwitchPreference(
                         checked = darkTheme.value,
@@ -226,7 +225,6 @@ fun Settings(viewModel: SettingsViewModel) {
                         icon = darkTheme.vector,
                         onCheckedChange = { new: Boolean ->
                             set(GlobalKeys.NIGHT_MODE, if (new) NightMode.YES else NightMode.NO)
-                            activity.launchReviewFlow()
                         }
                     )
 

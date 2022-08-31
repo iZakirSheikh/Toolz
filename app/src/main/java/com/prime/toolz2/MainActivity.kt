@@ -1,6 +1,5 @@
 package com.prime.toolz2
 
-import LocalWindowSizeClass
 import android.animation.ObjectAnimator
 import android.app.Activity
 import android.os.Bundle
@@ -30,7 +29,8 @@ import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.prime.toolz2.common.billing.BillingManager
+import com.prime.toolz2.billing.BillingManager
+import com.prime.toolz2.billing.Product
 import com.prime.toolz2.common.compose.*
 import com.prime.toolz2.settings.GlobalKeys
 import com.prime.toolz2.settings.NightMode
@@ -42,7 +42,6 @@ import com.primex.preferences.longPreferenceKey
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import rememberWindowSizeClass
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -90,13 +89,13 @@ class MainActivity : ComponentActivity() {
             BillingManager(
                 context = this,
                 products = arrayOf(
-                    BillingTokens.DISABLE_ASD_IN_APP_PRODUCT
+                    Product.DISABLE_ASD
                 )
             )
         lifecycle.addObserver(billingManager)
 
         setContent {
-            val sWindow = rememberWindowSizeClass()
+            val sWindow = calculateWindowSizeClass(activity = this)
 
             // observe the change to density
             val density = LocalDensity.current

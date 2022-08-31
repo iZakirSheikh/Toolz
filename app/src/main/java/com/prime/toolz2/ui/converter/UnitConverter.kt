@@ -1,10 +1,12 @@
 package com.prime.toolz2.ui.converter
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
@@ -15,15 +17,21 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -34,11 +42,9 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.prime.toolz2.*
 import com.prime.toolz2.R
+import com.prime.toolz2.billing.Product
 import com.prime.toolz2.common.compose.*
 import com.prime.toolz2.core.converter.Unet
 import com.prime.toolz2.core.math.NumUtil
@@ -46,14 +52,13 @@ import com.prime.toolz2.settings.GlobalKeys
 import com.prime.toolz2.settings.SettingsRoute
 import com.primex.core.*
 import com.primex.preferences.LocalPreferenceStore
-import com.primex.ui.ColoredOutlineButton
-import com.primex.ui.IconButton
-import com.primex.ui.Label
+import com.primex.ui.*
+import com.primex.ui.dialog.BottomSheetDialog
 import cz.levinzonr.saferoute.core.annotations.Route
 import cz.levinzonr.saferoute.core.annotations.RouteNavGraph
 import cz.levinzonr.saferoute.core.navigateTo
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
+
 
 private const val TAG = "UnitConverter"
 
@@ -150,27 +155,13 @@ private fun AppBarTop(
 
             val manager = LocalBillingManager.current
             val activity = LocalContext.current.activity!!
-            val purchased by manager.isPurchased(id = BillingTokens.DISABLE_ASD_IN_APP_PRODUCT)
+            val purchased by manager.isPurchased(id = Product.DISABLE_ASD)
             if (!purchased)
-                Surface(
+                IconButton(
+                    painter = painterResource(id = R.drawable.ic_remove_ads),
+                    contentDescription = null,
                     onClick = {
-                        manager.launchBillingFlow(
-                            activity,
-                            BillingTokens.DISABLE_ASD_IN_APP_PRODUCT
-                        )
-                    },
-                    color = Color.Transparent,
-                    shape = CircleShape,
-                    content = {
-                        LottieAnimation(
-                            composition = rememberLottieComposition(
-                                spec = LottieCompositionSpec.RawRes(R.raw.remove_ads)
-                            ).value,
-                            modifier = Modifier
-                                .padding(6.dp)
-                                .requiredSize(30.dp),
-                            iterations = Int.MAX_VALUE,
-                        )
+                        manager.launchBillingFlow(activity, Product.DISABLE_ASD)
                     }
                 )
 
@@ -187,6 +178,7 @@ private fun AppBarTop(
         }
     }
 }
+
 
 @Composable
 private fun Tab(
@@ -271,16 +263,58 @@ private fun UnitConverterViewModel.Converters(
 }
 
 @Composable
+fun Unit(
+    value: Unet,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val container = if (selected) Material.colors.primaryContainer else Color.Transparent
+    val color = if (selected) Material.colors.primary else LocalContentColor.current
+    val bg =
+        if (selected)
+            Modifier.drawBehind {
+                drawRect(brush = Brush.horizontalGradient(listOf(container, Color.Transparent)))
+                drawRect(color = color, size = size.copy(width = 4.dp.toPx()))
+            }
+        else
+            Modifier
+    DropdownMenuItem(
+        modifier = modifier.then(bg),
+        onClick = onClick,
+        enabled = !selected,
+        content = {
+            // code
+            Text(
+                text = stringResource(res = value.code),
+                style = MaterialTheme.typography.body1,
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
+
+            // title
+            Text(
+                text = stringResource(res = value.title),
+                modifier = Modifier.padding(start = ContentPadding.normal),
+                style = MaterialTheme.typography.caption,
+                color = color,
+            )
+        }
+    )
+}
+
+
 @OptIn(ExperimentalMaterialApi::class)
-private fun UnitConverterViewModel.ExposedDropdownMenuBox(
+@Composable
+fun UnitConverterViewModel.ExposedDropdownMenuBox(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
     isFrom: Boolean,
     values: Map<AnnotatedString, List<Unet>>,
     modifier: Modifier = Modifier,
     field: @Composable () -> Unit,
-    expanded: Boolean = false,
-    onDismissRequest: () -> Unit,
 ) {
-
     ExposedDropdownMenuBox(
         modifier = modifier,
         expanded = expanded,
@@ -294,16 +328,17 @@ private fun UnitConverterViewModel.ExposedDropdownMenuBox(
                 onDismissRequest = onDismissRequest,
                 modifier = Modifier.exposedDropdownSize(true),
                 content = {
-                    val container = MaterialTheme.colors.secondaryContainer
-                    val secondary = MaterialTheme.colors.secondary
+                    val primary = Material.colors.primary
+                    val selected = if (isFrom) fromUnit else toUnit
 
                     values.forEach { (title, list) ->
+
                         // list header
                         Label(
                             text = title,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Light,
                             maxLines = 2,
-                            color = secondary,
+                            color = primary,
                             modifier = Modifier
                                 .padding(
                                     start = ContentPadding.normal,
@@ -312,51 +347,25 @@ private fun UnitConverterViewModel.ExposedDropdownMenuBox(
                                     bottom = ContentPadding.medium
                                 )
                                 .fillMaxWidth()
-                                .drawHorizontalDivider(color = secondary)
+                                .drawHorizontalDivider(color = primary)
                                 .padding(bottom = ContentPadding.medium),
+                            style = Material.typography.h4
                         )
 
                         // emit the list of this title
+                        val activity = LocalContext.current.activity!!
                         list.forEach { value ->
-                            val selected = (if (isFrom) fromUnit else toUnit) == value
-                            val color = if (selected) secondary else LocalContentColor.current
-
-                            //TODO find a way to support selected.
-                            DropdownMenuItem(
-                                modifier = if (selected) Modifier.background(color = container) else Modifier,
-                                //handle click based on the type
-                                //weather it is from or to.
+                            Unit(
+                                value = value,
+                                selected = selected == value,
                                 onClick = {
-                                    if (isFrom)
-                                        fromUnit = value
-                                    else
-                                        toUnit = value
-
+                                    if (isFrom) fromUnit = value
+                                    else toUnit = value
+                                    // only place where it should be called.
+                                    activity.launchReviewFlow()
                                     onDismissRequest()
-                                },
-
-                                content = {
-                                    // code
-                                    Text(
-                                        text = stringResource(res = value.code),
-                                        style = MaterialTheme.typography.body1,
-                                        fontStyle = FontStyle.Italic,
-                                        fontWeight = FontWeight.Bold,
-                                        color = color
-                                    )
-
-                                    // title
-                                    Text(
-                                        text = stringResource(res = value.title),
-                                        modifier = Modifier.padding(start = ContentPadding.normal),
-                                        style = MaterialTheme.typography.caption,
-                                        color = color,
-                                    )
-                                },
+                                }
                             )
-                            // show divider only when checked.
-                            if (selected)
-                                Divider(color = color, thickness = 2.dp)
                         }
                     }
                 }
@@ -364,6 +373,7 @@ private fun UnitConverterViewModel.ExposedDropdownMenuBox(
         }
     )
 }
+
 
 private val FIELD_MIN_HEIGHT = 80.dp
 
@@ -385,7 +395,6 @@ private fun UnitConverterViewModel.ValueField(
             modifier = Modifier
                 .rotate(false),
         )
-
         var expanded by rememberState(initial = false)
         ExposedDropdownMenuBox(
             isFrom = true,
@@ -399,7 +408,10 @@ private fun UnitConverterViewModel.ValueField(
                     onValueChange = { value = it.text },
                     readOnly = false,
                     singleLine = true,
-                    enabled = true,
+
+                    // a workaround for keyboard issue.
+                    // using readOnly introduces another issue.
+                    enabled = !expanded,
                     visualTransformation = visualTransformation,
                     shape = RoundedCornerShape(percent = 10),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
@@ -499,7 +511,6 @@ private fun UnitConverterViewModel.ResultField(
     }
 }
 
-
 @Composable
 private fun OutlineChip(
     text: AnnotatedString,
@@ -540,11 +551,18 @@ private fun OutlineChip(
     )
 }
 
+
 @Composable
 private fun UnitConverterViewModel.AboutEquals(
     modifier: Modifier = Modifier,
 ) {
-    StaggeredGrid(rows = 2, modifier = modifier) {
+    val manager = LocalClipboardManager.current
+    StaggeredGrid(
+        rows = 2,
+        modifier = Modifier
+            .horizontalScroll(state = rememberScrollState())
+            .then(modifier)
+    ) {
         more.forEach { (unit, value) ->
             val code = stringResource(res = unit)
             OutlineChip(
@@ -558,7 +576,7 @@ private fun UnitConverterViewModel.AboutEquals(
                         }
                     )
                 },
-                onRequestCopy = { /*TODO*/ },
+                onRequestCopy = { manager.copy() },
                 modifier = Modifier.padding(
                     end = ContentPadding.medium,
                     bottom = ContentPadding.normal
@@ -568,9 +586,12 @@ private fun UnitConverterViewModel.AboutEquals(
     }
 }
 
+@OptIn(ExperimentalComposeApi::class)
 @Route(navGraph = RouteNavGraph(start = true))
 @Composable
-fun UnitConverter(viewModel: UnitConverterViewModel) {
+fun UnitConverter(
+    viewModel: UnitConverterViewModel
+) {
     // Dispose off messenger when out of scope.
     // this ensures the viewModel has a instance of channel only when
     // device is active and working.
@@ -598,108 +619,113 @@ fun UnitConverter(viewModel: UnitConverterViewModel) {
                 )
             },
 
-            content = {
-                Column(Modifier.padding(it)) {
-                    Converters(
-                        modifier = Modifier.padding(top = ContentPadding.normal),
-                        contentPadding = PaddingValues(horizontal = 24.dp)
-                    )
-                    CompositionLocalProvider(
-                        LocalTextSelectionColors provides TextSelectionColors(
-                            Color.Transparent,
-                            Color.Transparent
-                        )
-                    ) {
-                        val visualTransformation by NumberFormatTransformation
-                        val resources = LocalContext.current.resources
-                        val values = remember(converter.uuid) {
-                            converter.units.groupBy { resources.stringResource(it.group) }
-                        }
-                        ValueField(
-                            modifier = Modifier.padding(
-                                top = ContentPadding.normal,
-                                start = 24.dp,
-                                end = 24.dp
-                            ),
-                            visualTransformation = visualTransformation,
-                            values = values
-                        )
-
-                        ResultField(
-                            modifier = Modifier.padding(
-                                top = ContentPadding.normal,
-                                start = 24.dp,
-                                end = 24.dp
-                            ),
-                            visualTransformation = visualTransformation,
-                            values = values
-                        )
-                    }
-
-                    // copy
-                    TextButton(
-                        onClick = { runBlocking { channel.send("Coming soon!") } },
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(end = 24.dp, top = ContentPadding.medium),
-                        content = {
-                            Icon(
-                                imageVector = Icons.Outlined.FileCopy,
-                                contentDescription = null
-                            )
-
-                            Label(
-                                text = "COPY",
-                                modifier = Modifier.padding(
-                                    start = ContentPadding.medium
-                                )
-                            )
-                        }
-                    )
-
-                    Text(
-                        text = "About Equals",
-                        style = MaterialTheme.typography.h4,
-                        modifier = Modifier
-                            .padding(start = ContentPadding.large, top = ContentPadding.small)
-                            .align(Alignment.Start),
-                        fontWeight = FontWeight.Light,
-                    )
-
-                    AboutEquals(
-                        modifier = Modifier
-                            .horizontalScroll(state = rememberScrollState())
-                            .wrapContentHeight(Alignment.Top)
-                            .padding(horizontal = 28.dp, vertical = ContentPadding.medium),
-                    )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    ColoredOutlineButton(
-                        onClick = { swap(); },
-                        shape = CircleShape,
-
-                        modifier = Modifier
-                            // add padding so that
-                            .padding(vertical = ContentPadding.normal)
-                            // at least the height of the TopAppBar
-                            .height(48.dp)
-                            // width around 70% of screen
-                            .fillMaxWidth(0.7f)
-                            // align centre of column
-                            .align(Alignment.CenterHorizontally),
-
-                        content = {
-                            Icon(
-                                imageVector = Icons.Outlined.SwapVerticalCircle,
-                                contentDescription = null,
-                                modifier = Modifier.padding(end = ContentPadding.medium)
-                            )
-                            Label(text = "SWAP")
-                        },
-                        border = BorderStroke(1.dp, Material.colors.primary)
+            floatingActionButton = {
+                FloatingActionButton(onClick = { swap(); }, shape = RoundedCornerShape(30)) {
+                    Icon(
+                        imageVector = Icons.Outlined.SwapVert,
+                        contentDescription = null
                     )
                 }
+            },
+
+            content = {
+                Column(
+                    modifier = Modifier.padding(it),
+                    content = {
+
+                        Converters(
+                            modifier = Modifier
+                                .sizeIn(minHeight = 110.dp)
+                                .padding(top = ContentPadding.normal),
+                            contentPadding = PaddingValues(horizontal = 24.dp)
+                        )
+
+                        CompositionLocalProvider(
+                            LocalTextSelectionColors provides TextSelectionColors(
+                                Color.Transparent,
+                                Color.Transparent
+                            )
+                        ) {
+                            val visualTransformation by NumberFormatTransformation
+                            val resources = LocalContext.current.resources
+                            val values = remember(converter.uuid) {
+                                converter.units.groupBy { resources.stringResource(it.group) }
+                            }
+                            ValueField(
+                                modifier = Modifier.padding(
+                                    top = ContentPadding.normal,
+                                    start = 24.dp,
+                                    end = 24.dp
+                                ),
+                                visualTransformation = visualTransformation,
+                                values = values
+                            )
+
+                            ResultField(
+                                modifier = Modifier.padding(
+                                    top = ContentPadding.normal,
+                                    start = 24.dp,
+                                    end = 24.dp
+                                ),
+                                visualTransformation = visualTransformation,
+                                values = values
+                            )
+                        }
+
+                        // actions
+                       Row(
+                           modifier = Modifier
+                               .align(Alignment.End)
+                               .padding(end = 24.dp, top = ContentPadding.medium),
+                       ) {
+
+                           var expanded by rememberState(initial = false)
+                           BottomSheetDialog(expanded = expanded, onDismissRequest = { expanded = false}) {
+                               Surface() {
+                                   Column {
+                                       Text(
+                                           text = "About Equals",
+                                           style = MaterialTheme.typography.h4,
+                                           modifier = Modifier
+                                               .padding(
+                                                   start = ContentPadding.large,
+                                                   top = ContentPadding.small
+                                               )
+                                               .align(Alignment.Start),
+                                           fontWeight = FontWeight.Light,
+                                       )
+
+                                       Divider(
+                                           modifier = Modifier.padding(
+                                               vertical = ContentPadding.medium,
+                                               horizontal = ContentPadding.normal
+                                           )
+                                       )
+
+                                       AboutEquals(
+                                           modifier = Modifier
+                                               .padding(horizontal = 28.dp, vertical = ContentPadding.medium),
+                                       )
+                                   }
+                               }
+                           }
+
+                           IconButton(
+                               onClick = { expanded = true },
+                               imageVector = Icons.Filled.Info,
+                               contentDescription = "More",
+                               tint = Material.colors.primary,
+                           )
+
+                           val clipboard = LocalClipboardManager.current
+                           TextButton(
+                               label = "COPY",
+                               leading = rememberVectorPainter(image = Icons.Outlined.FileCopy),
+                               onClick = { clipboard.copy() }
+                           )
+                       }
+                    }
+                )
             }
         )
     }

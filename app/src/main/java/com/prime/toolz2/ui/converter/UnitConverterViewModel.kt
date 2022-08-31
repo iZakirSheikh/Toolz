@@ -1,10 +1,12 @@
 package com.prime.toolz2.ui.converter
 
+import android.content.ClipboardManager
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prime.toolz2.common.compose.SnackDataChannel
 import com.prime.toolz2.common.compose.send
+import com.prime.toolz2.core.converter.Unet
 import com.prime.toolz2.core.converter.UnitConverter
 import com.prime.toolz2.core.math.NumUtil
 import com.prime.toolz2.core.math.UnifiedReal
@@ -246,6 +248,16 @@ class UnitConverterViewModel @Inject constructor(
         value = DEFAULT_VALUE
         viewModelScope.launch {
             channel?.send(message = "Input cleared")
+        }
+    }
+
+    /**
+     * A util function to copy the converted value into [ClipboardManager]
+     * @param to The [toUnit] might be one from about equals.
+     */
+    fun androidx.compose.ui.platform.ClipboardManager.copy(to: Unet? = null){
+        viewModelScope.launch {
+            channel?.send(message = "Not Implemented yet!. Coming Soon!")
         }
     }
 

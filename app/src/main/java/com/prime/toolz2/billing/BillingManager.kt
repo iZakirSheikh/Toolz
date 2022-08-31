@@ -1,4 +1,4 @@
-package com.prime.toolz2.common.billing
+package com.prime.toolz2.billing
 
 import android.app.Activity
 import android.content.Context
