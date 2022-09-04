@@ -212,11 +212,6 @@ inline fun Resources.stringResource(res: Text) = resolve(res)
 @JvmName("stringResource1")
 inline fun Resources.stringResource(res: Text?) = resolve(res)
 
-val LocalBillingManager =
-    compositionLocalOf<BillingManager> {
-        error("No Local BillingClient set. ")
-    }
-
 private const val TAG = "Util"
 
 fun AppUpdateManager.check(

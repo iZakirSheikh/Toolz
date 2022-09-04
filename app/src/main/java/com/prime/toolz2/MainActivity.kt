@@ -1,5 +1,6 @@
 package com.prime.toolz2
 
+
 import android.animation.ObjectAnimator
 import android.app.Activity
 import android.os.Bundle
@@ -25,12 +26,12 @@ import com.google.android.play.core.ktx.AppUpdateResult
 import com.google.android.play.core.ktx.requestAppUpdateInfo
 import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.ktx.requestUpdateFlow
+import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.prime.toolz2.billing.BillingManager
-import com.prime.toolz2.billing.Product
+import com.prime.toolz2.billing.*
 import com.prime.toolz2.common.compose.*
 import com.prime.toolz2.settings.GlobalKeys
 import com.prime.toolz2.settings.NightMode
@@ -49,105 +50,6 @@ private const val TAG = "MainActivity"
 
 private const val RESULT_CODE_APP_UPDATE = 1000
 
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
-    lateinit var fAnalytics: FirebaseAnalytics
-
-    @Inject
-    lateinit var preferences: Preferences
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // The app has started from scratch if savedInstanceState is null.
-        val isColdStart = savedInstanceState == null //why?
-        // Obtain the FirebaseAnalytics instance.
-        fAnalytics = Firebase.analytics
-        // show splash screen
-        initSplashScreen(
-            isColdStart
-        )
-        //init
-        val channel = SnackDataChannel()
-        if (isColdStart) {
-            val counter =
-                with(preferences) { preferences[GlobalKeys.KEY_LAUNCH_COUNTER].obtain() } ?: 0
-            // update launch counter if
-            // cold start.
-            preferences[GlobalKeys.KEY_LAUNCH_COUNTER] = counter + 1
-            // check for updates on startup
-            // don't report
-            // check silently
-            launchUpdateFlow(channel)
-            // TODO: Try to reconcile if it is any good to ask for reviews here.
-            // launchReviewFlow()
-        }
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        // setup billing manager
-
-        val billingManager =
-            BillingManager(
-                context = this,
-                products = arrayOf(
-                    Product.DISABLE_ASD
-                )
-            )
-        lifecycle.addObserver(billingManager)
-
-        setContent {
-            val sWindow = calculateWindowSizeClass(activity = this)
-
-            // observe the change to density
-            val density = LocalDensity.current
-            val fontScale by with(preferences) { get(GlobalKeys.FONT_SCALE).observeAsState() }
-            val modified = Density(density = density.density, fontScale = fontScale)
-            // The state of the Snackbar
-            val snackbar = remember(::SnackbarHostState)
-            // observe the channel
-            // emit the updates
-            val resource = LocalContext.current.resources
-            LaunchedEffect(key1 = channel) {
-                channel.receiveAsFlow().collect { (label, message, duration, action) ->
-                    // dismantle the given snack and use the corresponding components
-                    val result = snackbar.showSnackbar(
-                        message = resource.stringResource(message).text,
-                        actionLabel = resource.stringResource(label)?.text
-                            ?: resource.getString(R.string.dismiss),
-                        duration = duration
-                    )
-                    // action based on
-                    when (result) {
-                        SnackbarResult.ActionPerformed -> action?.invoke()
-                        SnackbarResult.Dismissed -> { /*do nothing*/
-                        }
-                    }
-                }
-            }
-            var windowPadding by rememberState(initial = PaddingValues(0.dp))
-            CompositionLocalProvider(
-                LocalWindowPadding provides windowPadding,
-                LocalElevationOverlay provides null,
-                LocalWindowSizeClass provides sWindow,
-                LocalPreferenceStore provides preferences,
-                LocalSystemUiController provides rememberSystemUiController(),
-                LocalDensity provides modified,
-                LocalSnackDataChannel provides channel,
-                LocalBillingManager provides billingManager
-            ) {
-                Material(isDark = resolveAppThemeState()) {
-                    val state = rememberScaffoldState(snackbarHostState = snackbar)
-                    // scaffold
-                    // FixMe: Re-design the SnackBar Api.
-                    // Introduce: SideBar and Bottom Bar.
-                    Scaffold(scaffoldState = state) { inner ->
-                        windowPadding = inner
-                        Home()
-                    }
-                }
-            }
-        }
-    }
-}
 
 /**
  * Manages SplashScreen
@@ -192,30 +94,122 @@ private fun resolveAppThemeState(): Boolean {
     }
 }
 
-private val KEY_LAST_REVIEW_TIME =
-    longPreferenceKey(
-        TAG + "_last_review_time"
-    )
+
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+
+    lateinit var fAnalytics: FirebaseAnalytics
+    @Inject
+    lateinit var preferences: Preferences
+    lateinit var mReviewManager: ReviewManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // The app has started from scratch if savedInstanceState is null.
+        val isColdStart = savedInstanceState == null //why?
+        // Obtain the FirebaseAnalytics instance.
+        fAnalytics = Firebase.analytics
+        // show splash screen
+        initSplashScreen(
+            isColdStart
+        )
+        //init
+        val channel = SnackDataChannel()
+        if (isColdStart) {
+            val counter =
+                with(preferences) { preferences[GlobalKeys.KEY_LAUNCH_COUNTER].obtain() } ?: 0
+            // update launch counter if
+            // cold start.
+            preferences[GlobalKeys.KEY_LAUNCH_COUNTER] = counter + 1
+            // check for updates on startup
+            // don't report
+            // check silently
+            launchUpdateFlow(channel)
+            // TODO: Try to reconcile if it is any good to ask for reviews here.
+            // launchReviewFlow()
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        // setup Monetization
+        val monitizer = Monitizer(
+            billingManager = BillingManager(
+                context = this,
+                products = arrayOf(
+                    Product.DISABLE_ASD
+                )
+            ),
+            advertiser = Advertiser(context = this)
+        )
+        lifecycle.addObserver(monitizer)
+
+        setContent {
+            val sWindow = calculateWindowSizeClass(activity = this)
+            // observe the change to density
+            val density = LocalDensity.current
+            val fontScale by with(preferences) { get(GlobalKeys.FONT_SCALE).observeAsState() }
+            val modified = Density(density = density.density, fontScale = fontScale)
+            // The state of the Snackbar
+            val snackbar = remember(::SnackbarHostState)
+            // observe the channel
+            // emit the updates
+            val resource = LocalContext.current.resources
+            LaunchedEffect(key1 = channel) {
+                channel.receiveAsFlow().collect { (label, message, duration, action) ->
+                    // dismantle the given snack and use the corresponding components
+                    val result = snackbar.showSnackbar(
+                        message = resource.stringResource(message).text,
+                        actionLabel = resource.stringResource(label)?.text
+                            ?: resource.getString(R.string.dismiss),
+                        duration = duration
+                    )
+                    // action based on
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> action?.invoke()
+                        SnackbarResult.Dismissed -> { /*do nothing*/
+                        }
+                    }
+                }
+            }
+
+            var windowPadding by rememberState(initial = PaddingValues(0.dp))
+            CompositionLocalProvider(
+                LocalWindowPadding provides windowPadding,
+                LocalElevationOverlay provides null,
+                LocalWindowSizeClass provides sWindow,
+                LocalPreferenceStore provides preferences,
+                LocalSystemUiController provides rememberSystemUiController(),
+                LocalDensity provides modified,
+                LocalSnackDataChannel provides channel,
+                LocalMonitizer provides monitizer
+            ) {
+                Material(isDark = resolveAppThemeState()) {
+                    val state = rememberScaffoldState(snackbarHostState = snackbar)
+                    // scaffold
+                    // FixMe: Re-design the SnackBar Api.
+                    // Introduce: SideBar and Bottom Bar.
+                    Scaffold(scaffoldState = state) { inner ->
+                        windowPadding = inner
+                        Home()
+                    }
+                }
+            }
+        }
+    }
+}
 
 private const val MIN_LAUNCH_COUNT = 20
 private val MAX_DAYS_BEFORE_FIRST_REVIEW = TimeUnit.DAYS.toMillis(7)
-private val MAX_DAY_AFTER_FIRST_REVIEW = TimeUnit.DAYS.toMillis(10)
 
 /**
  * A convince method for launching an in-app review.
  * The review API is guarded by some conditions which are
  * * The first review will be asked when launchCount is > [MIN_LAUNCH_COUNT] and daysPassed >=[MAX_DAYS_BEFORE_FIRST_REVIEW]
- * * After asking first review then after each [MAX_DAY_AFTER_FIRST_REVIEW] a review dialog will be showed.
+ * * After asking first review then it is up to [API] weather to show the dialog.
  * Note: The review should not be asked after every coldBoot.
  */
 fun Activity.launchReviewFlow() {
     require(this is MainActivity)
     val count =
         with(preferences) { preferences[GlobalKeys.KEY_LAUNCH_COUNTER].obtain() } ?: 0
-
-    // the time when lastly asked for review
-    val lastAskedTime =
-        with(preferences) { preferences[KEY_LAST_REVIEW_TIME].obtain() }
 
     val firstInstallTime =
         com.primex.core.runCatching(TAG + "_review") {
@@ -227,33 +221,24 @@ fun Activity.launchReviewFlow() {
     // Only first time we should not ask immediately
     // however other than this whenever we do some thing of appreciation.
     // we should ask for review.
-    val askFirstReview =
-        lastAskedTime == null &&
-                firstInstallTime != null &&
-                count >= MIN_LAUNCH_COUNT &&
-                currentTime - firstInstallTime >= MAX_DAYS_BEFORE_FIRST_REVIEW
-
-    val askNormalOne =
-        lastAskedTime != null &&
-                count >= MIN_LAUNCH_COUNT &&
-                currentTime - lastAskedTime >= MAX_DAY_AFTER_FIRST_REVIEW
-
+    // after first review, it is safe to call it n number of times as the quota is managed by API.
+    val ask = firstInstallTime != null &&
+            count >= MIN_LAUNCH_COUNT &&
+            currentTime - firstInstallTime >= MAX_DAYS_BEFORE_FIRST_REVIEW
+    if (!ask) return
     // The flow has finished. The API does not indicate whether the user
     // reviewed or not, or even whether the review dialog was shown. Thus, no
     // matter the result, we continue our app flow.
     lifecycleScope.launch {
-        if (askFirstReview || askNormalOne) {
-            val reviewManager = ReviewManagerFactory.create(this@launchReviewFlow)
-            com.primex.core.runCatching(TAG) {
-                // update the last asking
-                preferences[KEY_LAST_REVIEW_TIME] = System.currentTimeMillis()
-                val info = reviewManager.requestReview()
-                reviewManager.launchReviewFlow(this@launchReviewFlow, info)
-                //host.fAnalytics.
-            }
+        com.primex.core.runCatching(TAG) {
+            // update the last asking
+            val info = mReviewManager.requestReview()
+            mReviewManager.launchReviewFlow(this@launchReviewFlow, info)
+            //host.fAnalytics.
         }
     }
 }
+
 
 private const val FLEXIBLE_UPDATE_MAX_STALENESS_DAYS = 2
 
@@ -311,7 +296,8 @@ fun Activity.launchUpdateFlow(
                                 is AppUpdateResult.Available -> {
                                     // if user choose to skip the update handle that case also.
                                     val isFlexible =
-                                        (result.updateInfo.clientVersionStalenessDays() ?: -1) <=
+                                        (result.updateInfo.clientVersionStalenessDays()
+                                            ?: -1) <=
                                                 FLEXIBLE_UPDATE_MAX_STALENESS_DAYS
                                     if (isFlexible)
                                         result.startFlexibleUpdate(

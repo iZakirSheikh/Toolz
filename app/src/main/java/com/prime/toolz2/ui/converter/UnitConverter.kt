@@ -1,5 +1,6 @@
 package com.prime.toolz2.ui.converter
 
+
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
@@ -44,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prime.toolz2.*
 import com.prime.toolz2.R
-import com.prime.toolz2.billing.Product
+import com.prime.toolz2.billing.*
 import com.prime.toolz2.common.compose.*
 import com.prime.toolz2.core.converter.Unet
 import com.prime.toolz2.core.math.NumUtil
@@ -153,10 +154,10 @@ private fun AppBarTop(
                 style = Material.typography.h5
             )
 
-            val manager = LocalBillingManager.current
+            val manager = LocalMonitizer.current
             val activity = LocalContext.current.activity!!
-            val purchased by manager.isPurchased(id = Product.DISABLE_ASD)
-            if (!purchased)
+            val purchased by manager.observeAsState(id = Product.DISABLE_ASD)
+            if (!purchased.purchased)
                 IconButton(
                     painter = painterResource(id = R.drawable.ic_remove_ads),
                     contentDescription = null,
@@ -167,18 +168,19 @@ private fun AppBarTop(
 
             // actions
             val controller = LocalNavController.current
+            val monitiser = LocalMonitizer.current
             IconButton(
                 imageVector = Icons.Outlined.Settings,
                 contentDescription = null,
                 onClick = {
                     val direction = SettingsRoute()
+                    monitiser.show(activity)
                     controller.navigateTo(direction)
                 }
             )
         }
     }
 }
-
 
 @Composable
 private fun Tab(
@@ -237,6 +239,7 @@ private fun Tab(
         )
     }
 }
+
 
 @Composable
 private fun UnitConverterViewModel.Converters(
@@ -354,6 +357,7 @@ fun UnitConverterViewModel.ExposedDropdownMenuBox(
 
                         // emit the list of this title
                         val activity = LocalContext.current.activity!!
+                        val monitizer= LocalMonitizer.current
                         list.forEach { value ->
                             Unit(
                                 value = value,
@@ -362,7 +366,7 @@ fun UnitConverterViewModel.ExposedDropdownMenuBox(
                                     if (isFrom) fromUnit = value
                                     else toUnit = value
                                     // only place where it should be called.
-                                    activity.launchReviewFlow()
+                                    monitizer.show(activity)
                                     onDismissRequest()
                                 }
                             )
@@ -551,7 +555,6 @@ private fun OutlineChip(
     )
 }
 
-
 @Composable
 private fun UnitConverterViewModel.AboutEquals(
     modifier: Modifier = Modifier,
@@ -587,6 +590,74 @@ private fun UnitConverterViewModel.AboutEquals(
 }
 
 @OptIn(ExperimentalComposeApi::class)
+@Composable
+private fun UnitConverterViewModel.InfoDialog(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit
+) {
+    BottomSheetDialog(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest
+    ) {
+        Surface {
+            Column {
+                Text(
+                    text = "About Equals",
+                    style = MaterialTheme.typography.h4,
+                    modifier = Modifier
+                        .padding(
+                            start = ContentPadding.large,
+                            top = ContentPadding.small
+                        )
+                        .align(Alignment.Start),
+                    fontWeight = FontWeight.Light,
+                )
+
+                Divider(
+                    modifier = Modifier.padding(
+                        vertical = ContentPadding.medium
+                    )
+                )
+
+                AboutEquals(
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp, vertical = ContentPadding.medium),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun UnitConverterViewModel.Actions(modifier: Modifier = Modifier) {
+    Row(modifier = modifier) {
+        val (_, hSizeClass) = LocalWindowSizeClass.current
+        if (hSizeClass != WindowSize.EXPANDED) {
+            var expanded by rememberState(initial = false)
+            InfoDialog(
+                expanded = expanded,
+                onDismissRequest = {expanded = false}
+            )
+            IconButton(
+                onClick = { expanded = true },
+                imageVector = Icons.Filled.Info,
+                contentDescription = "More",
+                tint = Material.colors.primary,
+            )
+        }
+
+        val clipboard = LocalClipboardManager.current
+        val monitizer = LocalMonitizer.current
+        val activity = LocalContext.current.activity!!
+        TextButton(
+            label = "COPY",
+            leading = rememberVectorPainter(image = Icons.Outlined.FileCopy),
+            onClick = { clipboard.copy(); monitizer.show(activity = activity) }
+        )
+    }
+}
+
+@OptIn(ExperimentalComposeApi::class)
 @Route(navGraph = RouteNavGraph(start = true))
 @Composable
 fun UnitConverter(
@@ -604,7 +675,6 @@ fun UnitConverter(
     }
 
     with(viewModel) {
-
         Scaffold(
             topBar = {
                 val prefs = LocalPreferenceStore.current
@@ -632,7 +702,6 @@ fun UnitConverter(
                 Column(
                     modifier = Modifier.padding(it),
                     content = {
-
                         Converters(
                             modifier = Modifier
                                 .sizeIn(minHeight = 110.dp)
@@ -672,58 +741,42 @@ fun UnitConverter(
                             )
                         }
 
-                        // actions
-                       Row(
-                           modifier = Modifier
-                               .align(Alignment.End)
-                               .padding(end = 24.dp, top = ContentPadding.medium),
-                       ) {
+                        Actions(
+                            modifier = Modifier
+                                .align(Alignment.Start)
+                                .padding(start = ContentPadding.large, top = ContentPadding.medium),
+                        )
 
-                           var expanded by rememberState(initial = false)
-                           BottomSheetDialog(expanded = expanded, onDismissRequest = { expanded = false}) {
-                               Surface() {
-                                   Column {
-                                       Text(
-                                           text = "About Equals",
-                                           style = MaterialTheme.typography.h4,
-                                           modifier = Modifier
-                                               .padding(
-                                                   start = ContentPadding.large,
-                                                   top = ContentPadding.small
-                                               )
-                                               .align(Alignment.Start),
-                                           fontWeight = FontWeight.Light,
-                                       )
+                        // ad
+                        val monitizer = LocalMonitizer.current
+                        val purchase by monitizer.observeAsState(id = Product.DISABLE_ASD)
+                        if (!purchase.purchased)
+                            Banner(
+                                placementID = Placement.BANNER_ID_CONVERTER,
+                                modifier = Modifier
+                                    .padding(top = ContentPadding.medium)
+                                    .align(Alignment.CenterHorizontally)
+                            )
 
-                                       Divider(
-                                           modifier = Modifier.padding(
-                                               vertical = ContentPadding.medium,
-                                               horizontal = ContentPadding.normal
-                                           )
-                                       )
+                        val (_, hSizeClass) = LocalWindowSizeClass.current
+                        if (hSizeClass == WindowSize.EXPANDED) {
+                            Text(
+                                text = "About Equals",
+                                style = MaterialTheme.typography.h4,
+                                modifier = Modifier
+                                    .padding(
+                                        start = ContentPadding.large,
+                                        top = ContentPadding.medium
+                                    )
+                                    .align(Alignment.Start),
+                                fontWeight = FontWeight.Light,
+                            )
 
-                                       AboutEquals(
-                                           modifier = Modifier
-                                               .padding(horizontal = 28.dp, vertical = ContentPadding.medium),
-                                       )
-                                   }
-                               }
-                           }
-
-                           IconButton(
-                               onClick = { expanded = true },
-                               imageVector = Icons.Filled.Info,
-                               contentDescription = "More",
-                               tint = Material.colors.primary,
-                           )
-
-                           val clipboard = LocalClipboardManager.current
-                           TextButton(
-                               label = "COPY",
-                               leading = rememberVectorPainter(image = Icons.Outlined.FileCopy),
-                               onClick = { clipboard.copy() }
-                           )
-                       }
+                            AboutEquals(
+                                modifier = Modifier
+                                    .padding(horizontal = 28.dp, vertical = ContentPadding.medium),
+                            )
+                        }
                     }
                 )
             }

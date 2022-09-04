@@ -34,3 +34,4 @@ object AppModule {
     @Singleton
     fun preferences(@ApplicationContext context: Context) = Preferences(context)
 }
+
