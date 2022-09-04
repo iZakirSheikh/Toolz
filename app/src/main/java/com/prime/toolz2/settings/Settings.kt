@@ -1,7 +1,10 @@
 package com.prime.toolz2.settings
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -17,14 +20,17 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ShareCompat
 import com.prime.toolz2.*
 import com.prime.toolz2.R
+import com.prime.toolz2.billing.*
 import com.prime.toolz2.common.compose.*
 import com.primex.core.activity
 import com.primex.core.drawHorizontalDivider
@@ -88,10 +94,11 @@ private inline fun PrefHeader(text: String) {
 context(ColumnScope) @Composable
 private inline fun AboutUs() {
     PrefHeader(text = "Feedback")
+    val activity = LocalContext.current.activity!!
 
     // val feedbackCollector = LocalFeedbackCollector.current
     val onRequestFeedback = {
-        // TODO: Handle feedback
+       activity.launchPlayStore()
     }
 
     Preference(
@@ -102,7 +109,7 @@ private inline fun AboutUs() {
     )
 
     val onRequestRateApp = {
-        // TODO: Handle rate app.
+        activity.launchPlayStore()
     }
     Preference(
         title = stringResource(R.string.rate_us),
@@ -112,7 +119,7 @@ private inline fun AboutUs() {
     )
 
     val onRequestShareApp = {
-        // TODO: Share app.
+        activity.shareApp()
     }
     Preference(
         title = stringResource(R.string.spread_the_word),
@@ -136,7 +143,6 @@ private inline fun AboutUs() {
         context.packageManager.getPackageInfo(context.packageName, 0).versionName
     }
     //val updateNotifier = LocalUpdateNotifier.current
-    val activity = LocalContext.current.activity!!
     val channel = LocalSnackDataChannel.current
     val onCheckUpdate: () -> Unit = {
         activity.launchUpdateFlow(channel, true)
@@ -214,6 +220,8 @@ fun Settings(viewModel: SettingsViewModel) {
                         //.fadeEdge(state = state, length = 16.dp, horizontal = false, color = color)
                         .verticalScroll(state),
                 ) {
+                    val monitizer = LocalMonitizer.current
+                    val activity = LocalContext.current.activity!!
                     PrefHeader(text = stringResource(R.string.appearence))
 
                     //dark mode
@@ -225,6 +233,7 @@ fun Settings(viewModel: SettingsViewModel) {
                         icon = darkTheme.vector,
                         onCheckedChange = { new: Boolean ->
                             set(GlobalKeys.NIGHT_MODE, if (new) NightMode.YES else NightMode.NO)
+                            monitizer.show(activity, force = true)
                         }
                     )
 
@@ -237,6 +246,7 @@ fun Settings(viewModel: SettingsViewModel) {
                         icon = font.vector,
                         onRequestChange = { family: FontFamily ->
                             viewModel.set(GlobalKeys.FONT_FAMILY, family)
+                            monitizer.show(activity, force = true)
                         }
                     )
 
@@ -254,6 +264,15 @@ fun Settings(viewModel: SettingsViewModel) {
                         }
                     )
 
+                    val purchase by monitizer.observeAsState(id = Product.DISABLE_ASD)
+                    if (!purchase.purchased)
+                        Banner(
+                            placementID = Placement.BANNER_ID_SETTINGS,
+                            modifier = Modifier
+                                .padding(top = ContentPadding.medium)
+                                .align(Alignment.CenterHorizontally)
+                        )
+
                     //force accent
                     val forceAccent by forceAccent
                     SwitchPreference(
@@ -264,6 +283,7 @@ fun Settings(viewModel: SettingsViewModel) {
                             set(GlobalKeys.FORCE_COLORIZE, should)
                             if (should)
                                 set(GlobalKeys.COLOR_STATUS_BAR, true)
+                            monitizer.show(activity, force = true)
                         }
                     )
 
@@ -276,17 +296,21 @@ fun Settings(viewModel: SettingsViewModel) {
                         enabled = !forceAccent.value,
                         onCheckedChange = { should: Boolean ->
                             set(GlobalKeys.COLOR_STATUS_BAR, should)
+                            monitizer.show(activity, force = true)
                         }
                     )
 
                     //hide status bar
                     val hideStatusBar by hideStatusBar
+                    val controller = LocalSystemUiController.current
                     SwitchPreference(
                         checked = hideStatusBar.value,
                         title = stringResource(res = hideStatusBar.title),
                         summery = hideStatusBar.summery?.let { stringResource(res = it) },
                         onCheckedChange = { should: Boolean ->
                             set(GlobalKeys.HIDE_STATUS_BAR, should)
+                            controller.isStatusBarVisible = should
+                            monitizer.show(activity, force = true)
                         }
                     )
 
@@ -299,6 +323,7 @@ fun Settings(viewModel: SettingsViewModel) {
                         icon = separator.vector,
                         onRequestChange = {
                             viewModel.set(GlobalKeys.GROUP_SEPARATOR, it)
+                            monitizer.show(activity, force = true)
                         }
                     )
 
@@ -307,5 +332,29 @@ fun Settings(viewModel: SettingsViewModel) {
                 }
             }
         )
+    }
+}
+
+private fun Context.shareApp() {
+    ShareCompat.IntentBuilder(this)
+        .setType("text/plain")
+        .setChooserTitle(getString(R.string.app_name))
+        .setText("Let me recommend you this application ${Private.FALLBACK_GOOGLE_STORE}")
+        .startChooser()
+}
+
+private fun Context.launchPlayStore() {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Private.GOOGLE_STORE)).apply {
+            setPackage(Private.PKG_GOOGLE_PLAY_STORE)
+            addFlags(
+                Intent.FLAG_ACTIVITY_NO_HISTORY or
+                        Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                        Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+            )
+        }
+        startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Private.FALLBACK_GOOGLE_STORE)))
     }
 }

@@ -3,12 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.prime.toolz2">
 
-    <!--Currently the app is only supported./tested on devices with below dimensions-->
-     <supports-screens
-         android:requiresSmallestWidthDp="300"
-         android:largestWidthLimitDp="420"
-         />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
 
+    <!-- Add these permissions for better ad targeting -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
+    <!-- In case your app target children (as defined under applicable laws, such as 13 in the US
+  and 16 in the EU) and you integrated the SDK version through Maven, you need to remove the WIFI
+  permission from your manifest merger. In order to do so, follow these steps: -->
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_STATE"
+        tools:node="remove" />
 
     <application
         android:allowBackup="true"
