@@ -507,19 +507,54 @@
     <string name="backspace">backspace</string>
     <string name="dismiss">dismiss</string>
 
-    <string name="review_msg">if you enjoy using Toolz, please take a moment and rate it 5 stars on app store. Thanks for your support \nTap to rate.</string>
-    <string name="feedback_mail_subject">Feedback of %1$s</string>
-    <string name="new_update_msg">Toolz recommends that you update to the latest version. By downloading the latest version you will get latest features bug fixes, performance improvements etc.</string>
-
-    <string name="feedback_dialog_placeholder">Have feedback? We\'d love to hear it, but please don\'t share sensitive information.</string>
-    <string name="about_us_desc">Hello, I am  <b><i>Zakir Sheikh</i></b> . I Love to develop apps. I like my apps to be useful plus <b>aesthetically beautiful</b> . Send me your precious <b>feedback</b> to keep me informed about you requirements. Please don\'t forget to rate the app <b>5 Star</b> , because this keeps me motivated. </string>
-    <string name="feedback">Feedback</string>
     <string name="rate_us">Rate Us</string>
-    <string name="spread_the_word">Spread the word</string>
-    <string name="spread_the_word_summery">\" As the saying goes \'Sharing is caring\'. Please help the app grow by sharing it with friends, family and WhatsApp groups etc.\"</string>
+    <string name="rate_us_msg">
+        Love using Toolz? Please rate it 5 stars on the app store! Your support keeps us going.\nTap to rate now.\nThanks!
+    </string>
+
     <string name="about_us">About Us</string>
+    <string name="about_us_desc">
+      Hello, I\'m Zakir Sheikh, a passionate app developer. I strive to create apps that are both functional and visually stunning. Your valuable feedback helps me understand your needs better. Kindly rate the app 5 stars to keep me motivated and inspired. Thank you for your support!
+    </string>
+
+    <string name="spread_the_word">Spread the word</string>
+    <string name="spread_the_word_msg">
+       As the saying goes, \'Sharing is caring.\' Help our app grow by spreading the word among your friends, family, and WhatsApp groups. Your support means the world to us!
+    </string>
+
+
     <string name="app_version">App Version</string>
     <string name="settings">Settings</string>
-    <string name="appearence">Appearance</string>
+
+    <string name="appearance">Appearance</string>
+
+    <string name="feedback">Feedback</string>
+    <string name="feedback_desc">
+       We hope you\'re enjoying our app! Your opinion matters to us, and we\'d love to hear your thoughts on how we can make it even better. If you have a moment, please leave us some feedback in the app store. Your feedback will help us continue to improve our app and provide the best experience possible. Thank you for your support!
+    </string>
+
+    <string name="coming_soon">Coming Soon</string>
+    <string name="coming_soon_msg">
+        We\'re sorry, this feature is not available yet. We\'re working hard to add it in a future
+        update. Thank you for your patience and understanding.
+    </string>
+    <string name="donate">Donate</string>
+    <string name="github">Github</string>
+    <string name="general">General</string>
+
+    <string name="dark_mode">Dark Mode</string>
+    <string name="dark_mode_summery">Choose the dark mode for the app: Yes, No, or Follow System.</string>
+
+    <string name="color_system_bars">Color System Bars</string>
+    <string name="color_system_bars_summery">Enable or disable coloring of the system bars.</string>
+
+    <string name="hide_status_bar">Hide Status Bar</string>
+    <string name="hide_status_bar_summery">Toggle the visibility of the status bar for immersive views.</string>
+
+    <string name="dynamic_colors">Dynamic colors</string>
+    <string name="dynamic_colors_summery">Toggle the usage of dynamic colors. This feature is available only on Android 12 or higher.</string>
+
+    <string name="group_separator">Group Separator</string>
+    <string name="group_separator_summery">Set the number group separator.</string>
 
 </resources>
