@@ -12,7 +12,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prime.toolz.converter.UnitConverter
-import com.prime.toolz.core.compose.withSpanStyle
 import com.prime.toolz.core.converter.Angle
 import com.prime.toolz.core.converter.Area
 import com.prime.toolz.core.converter.Converter
@@ -29,6 +28,7 @@ import com.prime.toolz.core.math.NumUtil
 import com.prime.toolz.core.math.UnifiedReal
 import com.primex.core.Text
 import com.primex.core.resolve
+import com.primex.core.withSpanStyle
 import com.primex.preferences.Preferences
 import com.primex.preferences.stringPreferenceKey
 import com.primex.preferences.value

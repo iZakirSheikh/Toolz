@@ -46,13 +46,12 @@ import com.prime.toolz.core.NightMode
 import com.prime.toolz.core.billing.Private
 import com.prime.toolz.core.billing.Product
 import com.prime.toolz.core.billing.purchased
-import com.prime.toolz.core.compose.IconButton
 import com.prime.toolz.core.compose.Route
 import com.prime.toolz.core.compose.Scaffold
-import com.prime.toolz.core.compose.current
 import com.prime.toolz.impl.SettingsViewModel
 import com.prime.toolz.impl.UnitConverterViewModel
 import com.prime.toolz.settings.Settings
+import com.primex.material3.IconButton
 
 private const val TAG = "Home"
 
@@ -74,7 +73,8 @@ typealias Material = MaterialTheme
  * navController.navigate("destination")
  * ```
  */
-val LocalNavController = staticCompositionLocalOf<NavHostController> {
+val LocalNavController =
+    staticCompositionLocalOf<NavHostController> {
     // FIXME: Maybe: Replace with some concrete controller; so that no error is thrown.
     error("no local nav host controller found")
 }
@@ -94,11 +94,15 @@ private fun resolveAppThemeState(): Boolean {
 }
 
 // Default Enter/Exit Transitions.
-private val EnterTransition = scaleIn(tween(220, 90), 0.98f) + fadeIn(tween(700))
-private val ExitTransition = fadeOut(tween(700))
+private val EnterTransition =
+    scaleIn(tween(220, 90), 0.98f) + fadeIn(tween(700))
+private val ExitTransition =
+    fadeOut(tween(700))
 
-private val DarkColorScheme = darkColorScheme(background = Color(0xFF0E0E0F))
-private val LightColorScheme = lightColorScheme()
+private val DarkColorScheme =
+    darkColorScheme(background = Color(0xFF0E0E0F))
+private val LightColorScheme =
+    lightColorScheme()
 
 @Composable
 @NonRestartableComposable
@@ -131,7 +135,8 @@ private fun Material(
 @NonRestartableComposable
 @Composable
 private fun NavGraph(
-    controller: NavHostController, modifier: Modifier = Modifier
+    controller: NavHostController,
+    modifier: Modifier = Modifier
 ) {
     // In order to navigate and remove the need to pass controller below UI components.
     // pass controller as composition local.

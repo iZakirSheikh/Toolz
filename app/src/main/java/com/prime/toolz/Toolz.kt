@@ -15,7 +15,7 @@ import dagger.hilt.android.scopes.ActivityRetainedScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-private const val TAG = "Gallery"
+private const val TAG = "Toolz"
 
 @Module
 @InstallIn(SingletonComponent::class)

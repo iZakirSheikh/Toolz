@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prime.toolz.core.ContentPadding
+import com.primex.material3.Text
 import kotlin.math.roundToInt
 
 private const val LAYOUT_ID_PROGRESS_BAR = "_layout_id_progress_bar"

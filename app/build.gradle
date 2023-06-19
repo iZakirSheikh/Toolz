@@ -46,12 +46,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
         freeCompilerArgs = ["-Xopt-in=kotlin.RequiresOptIn",]
     }
     buildFeatures {
@@ -62,7 +62,7 @@ android {
     }
     packagingOptions {
         resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            //excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
 }
@@ -116,9 +116,10 @@ dependencies {
     implementation "com.airbnb.android:lottie-compose:$lottie_version"
 
     //Preferences and other widgets
-    def toolkit_version = 'v1.0.0-alpha05'
+    def toolkit_version = 'v1.0.0-beta03'
     implementation("com.github.prime-zs.toolkit:preferences:$toolkit_version")
     implementation("com.github.prime-zs.toolkit:core-ktx:$toolkit_version")
+    implementation("com.github.prime-zs.toolkit:material3:$toolkit_version")
 
     // Splash Screen API
     implementation 'androidx.core:core-splashscreen:1.0.1'
