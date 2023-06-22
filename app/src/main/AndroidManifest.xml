@@ -1,45 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.prime.toolz2">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
-
-    <!-- Add these permissions for better ad targeting -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-
-    <!-- In case your app target children (as defined under applicable laws, such as 13 in the US
-  and 16 in the EU) and you integrated the SDK version through Maven, you need to remove the WIFI
-  permission from your manifest merger. In order to do so, follow these steps: -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <!--
+    In case your app target children (as defined under applicable laws, such as 13 in the US
+    and 16 in the EU) and you integrated the SDK version through Maven, you need to remove the WIFI
+    permission from your manifest merger. In order to do so, follow these steps:
+    -->
     <uses-permission
         android:name="android.permission.ACCESS_WIFI_STATE"
         tools:node="remove" />
 
     <application
+        android:name=".Toolz"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".App"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Splash"
         tools:targetApi="31">
+
+        <!--MainActivity-->
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <!--Launcher Intent Filter.-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-    </application>
 
+        </activity>
+        <!---->
+    </application>
 </manifest>
