@@ -5,6 +5,7 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -15,8 +16,8 @@ android {
         applicationId "com.prime.toolz2"
         minSdk 21
         targetSdk 33
-        versionCode 41
-        versionName "1.0.0-beta01"
+        versionCode 42
+        versionName "1.1.0-beta01"
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary true }
@@ -152,4 +153,12 @@ dependencies {
 
     // Downloadable fonts
     implementation 'androidx.compose.ui:ui-text-google-fonts:1.4.3'
+    //kotlin serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    //retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0"
+    //ChatGPT dependency
+    implementation 'com.github.acsbendi:Android-Request-Inspector-WebView:1.0.3'
+    //implementation 'org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.2.2'
 }
