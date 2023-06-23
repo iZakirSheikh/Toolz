@@ -170,7 +170,10 @@ private inline fun Vertical(
         val height = constraints.maxHeight
         // create duplicate constants to measure the contents as per their wishes.
         val unrestricted = constraints.copy(minHeight = 0)
-        val contentPlaceable = measurables[0].measure(constraints)
+        val contentPlaceable = measurables[0].measure(
+            // The content's length should be equal to height - navBar suggested length.
+            constraints.copy(minHeight = 0, maxHeight = height -  (orgNavBarHeightPx - navBarHeight).coerceAtLeast(0f).toInt())
+        )
         val channelPlaceable = measurables[1].measure(unrestricted)
 
         val measurable1 = measurables.getOrNull(2)
