@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChangeCircle
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.twotone.Forum
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.darkColorScheme
@@ -40,14 +43,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.prime.toolz.chatbot.ChatBot
 import com.prime.toolz.converter.UnitConverter
 import com.prime.toolz.core.ContentPadding
 import com.prime.toolz.core.NightMode
-import com.prime.toolz.core.billing.Private
 import com.prime.toolz.core.billing.Product
 import com.prime.toolz.core.billing.purchased
 import com.prime.toolz.core.compose.Route
 import com.prime.toolz.core.compose.Scaffold
+import com.prime.toolz.impl.ChatBotViewModel
 import com.prime.toolz.impl.SettingsViewModel
 import com.prime.toolz.impl.UnitConverterViewModel
 import com.prime.toolz.settings.Settings
@@ -159,6 +163,12 @@ private fun NavGraph(
                     val viewModel = hiltViewModel<SettingsViewModel>()
                     Settings(state = viewModel)
                 }
+
+                //ChatBot
+                composable(ChatBot.route){
+                    val viewModel = hiltViewModel<ChatBotViewModel>()
+                    ChatBot(state = viewModel)
+                }
             })
     })
 }
@@ -175,7 +185,7 @@ fun Home(channel: SnackbarHostState) {
     // current route.
     val current by navController.currentBackStackEntryAsState()
     val hideNavigationBar = when (current?.destination?.route) {
-        Settings.route -> true
+        Settings.route, ChatBot.route -> true
         else -> false
     }
     Material(darkTheme, dynamicColor) {
@@ -219,6 +229,17 @@ fun Home(channel: SnackbarHostState) {
                     checked = current?.destination?.route == UnitConverter.route,
                     onClick = {
                         navController.navigate(UnitConverter.direction())
+                    },
+                    vertical = vertical,
+                )
+
+                // ChatBot
+                Route(
+                    title = "ChatBot",
+                    icon = Icons.TwoTone.Forum,
+                    checked = current?.destination?.route == ChatBot.route,
+                    onClick = {
+                        navController.navigate(ChatBot.direction())
                     },
                     vertical = vertical,
                 )
