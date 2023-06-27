@@ -564,7 +564,7 @@
     <string name="access_token_instructions">
         <![CDATA[Please follow the steps below to obtain the Access Token:<br><br>
 <font color="#FF4081">Step 1:</font> Click <a href="https://chat.openai.com/chat"><u>here</u></a> to login.<br>
-<font color="#FF4081">Step 2:</font> After logging in, click <a href="https://chat.openai.com/get-access-token"><u>here</u></a> to retrieve the Access Token (via browser).<br>
+<font color="#FF4081">Step 2:</font> After logging in, click <a href="https://chat.openai.com/api/auth/session"><u>here</u></a> to retrieve the Access Token (via browser).<br>
 <font color="#FF4081">Step 3:</font> Copy all the text from Step 2 and paste it into the text field below.<br>
 <font color="#FF4081">Step 4:</font> Press "Go" to validate the token.]]>
     </string>
