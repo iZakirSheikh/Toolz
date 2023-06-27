@@ -32,19 +32,42 @@ interface ChatBot {
     /**
      * The state of the chat bot.
      */
-    val isInProgress: Boolean
+    val processing: Boolean
 
     /**
      * Indicates whether this app has access to the back-end server.
      *
      * @return true if this app has access, false otherwise.
      */
-    val hasAccess: Boolean
+    val isLoggedIn: Boolean
 
     /**
-     * Called after receiving a cookie from the browser. Pass an empty string to re-ask for login.
+     * Sets or saves persistently the access token provided by the user.
      *
-     * @param value The value of the received cookie.
+     * Example JSON input:
+     * ```
+     * {
+     *     "user": {
+     *         "id": "user-sdsdsgfghhfgjgj",
+     *         "name": "Zakir Sheikh",
+     *         "email": "feedbacktoprime@gmail.com",
+     *         "image": "https://lh3.googleusercontent.com/s96-c",
+     *         "picture": "https://lh3.googleusercontent.com/a/fy60ks=s96-c",
+     *         "idp": "google-oauth2",
+     *         "iat": 1686933542,
+     *         "mfa": false,
+     *         "groups": [],
+     *         "intercom_hash": "d66746f97303663eb50b9a5cd43286d135c3f36daf19949"
+     *     },
+     *     "expires": "2023-07-27T04:19:42.475Z",
+     *     "accessToken": "access token",
+     *     "authProvider": "auth0"
+     * }
+     * ```
+     * @param value The JSON string containing the access token. If an empty string is passed, the old saved value will be removed.
      */
     fun onLoggedIn(value: String)
+
+    /** Clears the conversation and starts a new one. */
+    fun clear()
 }

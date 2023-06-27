@@ -1,6 +1,7 @@
 package com.prime.toolz.core.gpt
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
@@ -11,15 +12,15 @@ import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import retrofit2.Retrofit
+import retrofit2.create
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import java.util.UUID
-import retrofit2.Retrofit
-import retrofit2.create
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
 
 private const val TAG = "ChatGPT"
 
@@ -37,7 +38,6 @@ data class Message(
     val role: String = "user", // any of system, user, assistant, or function.
     val created: Long = System.currentTimeMillis(),
 )
-
 
 /**
  * Converts the message into a JSON array format that can be used with a [ChatGPT] request.
@@ -96,6 +96,7 @@ private const val USER_AGENT =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
 private const val CHAT_GPT_MODEL = "text-davinci-002-render-sha"
 
+//TODO: Maybe in future version add a way to impl chat using WebSockets.
 interface ChatGPT {
 
     /**
@@ -182,3 +183,4 @@ suspend fun ChatGPT.send(
         RequestBody.create(MediaType.get("application/json"), request.toString().trimIndent())
     return send("Bearer $token", body)
 }
+

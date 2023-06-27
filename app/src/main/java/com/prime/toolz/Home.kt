@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -185,7 +186,7 @@ fun Home(channel: SnackbarHostState) {
     // current route.
     val current by navController.currentBackStackEntryAsState()
     val hideNavigationBar = when (current?.destination?.route) {
-        Settings.route, ChatBot.route -> true
+        Settings.route -> true
         else -> false
     }
     Material(darkTheme, dynamicColor) {
@@ -228,7 +229,19 @@ fun Home(channel: SnackbarHostState) {
                     icon = Icons.Outlined.ChangeCircle,
                     checked = current?.destination?.route == UnitConverter.route,
                     onClick = {
-                        navController.navigate(UnitConverter.direction())
+                        navController.navigate(UnitConverter.direction()){
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
                     },
                     vertical = vertical,
                 )
@@ -239,7 +252,19 @@ fun Home(channel: SnackbarHostState) {
                     icon = Icons.TwoTone.Forum,
                     checked = current?.destination?.route == ChatBot.route,
                     onClick = {
-                        navController.navigate(ChatBot.direction())
+                        navController.navigate(ChatBot.direction()){
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
                     },
                     vertical = vertical,
                 )

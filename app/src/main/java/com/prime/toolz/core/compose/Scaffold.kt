@@ -4,10 +4,14 @@ import androidx.annotation.FloatRange
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BottomAppBar
@@ -283,6 +287,7 @@ private inline fun Horizontal(
  * @param tabs Optional [Composable] function to display a navigation bar or toolbar.
  * @param hideNavBar Optional value to force hiding the navigation bar.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Scaffold(
     vertical: Boolean,
@@ -304,6 +309,8 @@ fun Scaffold(
             when {
                 // Don't show anything.
                 hideNavigationBar -> Unit
+                // Hide BottomBar when vertical and imeIsVisible
+                vertical && WindowInsets.isImeVisible -> Unit
                 // Show BottomAppBar
                 // Push content to centre of the screen.
                 vertical -> BottomAppBar(modifier = Modifier.layoutId(LAYOUT_ID_NAV_BAR)) {

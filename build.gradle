@@ -27,4 +27,13 @@ plugins {
     id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
 }
 
+// TODO: Maybe remove this in future.
+// This block was added because gradle was throwing error ab
+allprojects {
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+}
 
