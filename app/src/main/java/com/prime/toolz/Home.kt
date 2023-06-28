@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChangeCircle
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.twotone.Forum
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.darkColorScheme
@@ -35,19 +38,21 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.prime.toolz.chatbot.ChatBot
 import com.prime.toolz.converter.UnitConverter
 import com.prime.toolz.core.ContentPadding
 import com.prime.toolz.core.NightMode
-import com.prime.toolz.core.billing.Private
 import com.prime.toolz.core.billing.Product
 import com.prime.toolz.core.billing.purchased
 import com.prime.toolz.core.compose.Route
 import com.prime.toolz.core.compose.Scaffold
+import com.prime.toolz.impl.ChatBotViewModel
 import com.prime.toolz.impl.SettingsViewModel
 import com.prime.toolz.impl.UnitConverterViewModel
 import com.prime.toolz.settings.Settings
@@ -159,6 +164,12 @@ private fun NavGraph(
                     val viewModel = hiltViewModel<SettingsViewModel>()
                     Settings(state = viewModel)
                 }
+
+                //ChatBot
+                composable(ChatBot.route){
+                    val viewModel = hiltViewModel<ChatBotViewModel>()
+                    ChatBot(state = viewModel)
+                }
             })
     })
 }
@@ -218,7 +229,42 @@ fun Home(channel: SnackbarHostState) {
                     icon = Icons.Outlined.ChangeCircle,
                     checked = current?.destination?.route == UnitConverter.route,
                     onClick = {
-                        navController.navigate(UnitConverter.direction())
+                        navController.navigate(UnitConverter.direction()){
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
+                    },
+                    vertical = vertical,
+                )
+
+                // ChatBot
+                Route(
+                    title = "ChatBot",
+                    icon = Icons.TwoTone.Forum,
+                    checked = current?.destination?.route == ChatBot.route,
+                    onClick = {
+                        navController.navigate(ChatBot.direction()){
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
                     },
                     vertical = vertical,
                 )

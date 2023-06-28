@@ -5,18 +5,19 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'kotlinx-serialization'
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
     namespace 'com.prime.toolz'
 
     defaultConfig {
         applicationId "com.prime.toolz2"
         minSdk 21
         targetSdk 33
-        versionCode 41
-        versionName "1.0.0-beta01"
+        versionCode 43
+        versionName "2.0.0-beta01"
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary true }
@@ -46,12 +47,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '1.8'
         freeCompilerArgs = ["-Xopt-in=kotlin.RequiresOptIn",]
     }
     buildFeatures {
@@ -72,7 +73,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.10.1'
 
     //
-    def compose_version = '1.5.0-beta02'
+    def compose_version = '1.6.0-alpha01'
     implementation "androidx.compose.ui:ui:$compose_version"
     //implementation "androidx.compose.material:material:$compose_version"
 
@@ -81,7 +82,7 @@ dependencies {
     implementation "androidx.compose.animation:animation-graphics:$compose_version"
 
     //Material 3
-    def material3_version = '1.2.0-alpha02'
+    def material3_version = '1.2.0-alpha03'
     implementation "androidx.compose.material3:material3:$material3_version"
     implementation "androidx.compose.material3:material3-window-size-class:$material3_version"
 
@@ -116,7 +117,7 @@ dependencies {
     implementation "com.airbnb.android:lottie-compose:$lottie_version"
 
     //Preferences and other widgets
-    def toolkit_version = 'v1.0.0-beta03'
+    def toolkit_version = 'v1.0.0-beta04'
     implementation("com.github.prime-zs.toolkit:preferences:$toolkit_version")
     implementation("com.github.prime-zs.toolkit:core-ktx:$toolkit_version")
     implementation("com.github.prime-zs.toolkit:material3:$toolkit_version")
@@ -152,4 +153,12 @@ dependencies {
 
     // Downloadable fonts
     implementation 'androidx.compose.ui:ui-text-google-fonts:1.4.3'
+    //kotlin serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    //retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0"
+    //ChatGPT dependency
+    implementation 'com.github.acsbendi:Android-Request-Inspector-WebView:1.0.3'
+    //implementation 'org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.2.2'
 }

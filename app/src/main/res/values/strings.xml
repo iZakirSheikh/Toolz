@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">@string/unit_converter_html</string>
+    <string name="app_name">Unit Converter</string>
 
     <!--The name for the unit converter as spannable string-->
-    <string name="unit_converter_html"><small><b>Unit</b></small>\nConverter</string>
+    <string name="unit_converter_html"><b>Unit</b>\n<sup><font size="10">Converter</font></sup></string>
 
     <!--Unit Converter-->
     <string name="length">Length</string>
@@ -556,5 +556,19 @@
 
     <string name="group_separator">Group Separator</string>
     <string name="group_separator_summery">Set the number group separator.</string>
+
+    <!--ChatBot-->
+    <string name="remove_ads"><strike>ADS</strike></string>
+    <string name="chatbot_name">ChatBot  <sup><font size="10">Beta</font></sup></string>
+
+    <string name="access_token_instructions">
+        <![CDATA[Please follow the steps below to obtain the Access Token:<br><br>
+<font color="#FF4081">Step 1:</font> Click <a href="https://chat.openai.com/chat"><u>here</u></a> to login.<br>
+<font color="#FF4081">Step 2:</font> After logging in, click <a href="https://chat.openai.com/api/auth/session"><u>here</u></a> to retrieve the Access Token (via browser).<br>
+<font color="#FF4081">Step 3:</font> Copy all the text from Step 2 and paste it into the text field below.<br>
+<font color="#FF4081">Step 4:</font> Press "Go" to validate the token.]]>
+    </string>
+
+
 
 </resources>
