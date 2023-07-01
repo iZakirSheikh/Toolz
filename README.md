@@ -51,7 +51,9 @@ Toolz is an amazing app that helps you with various tasks and makes your life ea
 
 ### Download
 - Go to the Google Play Store and search for Toolz or click on the link below:
-  <a href='https://play.google.com/store/apps/details?id=com.prime.toolz2&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="256"/></a>
+
+   <a href='https://play.google.com/store/apps/details?id=com.prime.toolz2&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="256"/></a>
+   
 - Tap on the Install button and wait for the app to download and install on your device.
 - Once the installation is complete, you can launch the app from your home screen or app drawer.
 
