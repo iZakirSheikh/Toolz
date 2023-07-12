@@ -13,9 +13,9 @@
 
 ## 🌞 Preview 
 
-|   Shot-1    | Shot-2
-|---	|---
-|  ![](https://github.com/prime-zs/toolz2/blob/master/art/Screenshot_2022-05-16-09-50-15-79.png)    |  ![](https://github.com/prime-zs/toolz2/blob/master/art/Screenshot_2022-05-16-09-50-48-66.png)    
+|   Shot-1    | Shot-2 | Shot-3 | Shot-4 | Shot-5 | Shot-6 | Shot-7
+|---	|--- |---	|--- |---	|--- |---
+| ![](https://github.com/iZakirSheikh/toolkit/assets/46754437/4a356e6f-07b6-4b0d-a710-5316366485fe) | ![](https://github.com/iZakirSheikh/toolkit/assets/46754437/9a7fede8-3667-4b0a-b2e7-8b85e5d266ef) | ![Apple iPhone 11 Pro Max Screenshot 2](https://github.com/iZakirSheikh/toolkit/assets/46754437/0ae1acef-dc2b-4534-8b34-a6dd93aee4e8) | ![](https://github.com/iZakirSheikh/toolkit/assets/46754437/adc6931f-ea51-406d-848b-42777b529a0d) | ![](https://github.com/iZakirSheikh/toolkit/assets/46754437/aeb47b2e-98c6-4756-a8fb-b9bbdd0d8fc2) | ![](https://github.com/iZakirSheikh/toolkit/assets/46754437/fa263ffb-c561-4c70-85d4-a235023138f8) | ![](https://github.com/iZakirSheikh/toolkit/assets/46754437/09d38631-1d41-403b-b697-f6de36ab459a)
 <br />
 
 ## Features
