@@ -568,7 +568,9 @@
 <font color="#FF4081">Step 3:</font> Copy all the text from Step 2 and paste it into the text field below.<br>
 <font color="#FF4081">Step 4:</font> Press "Go" to validate the token.]]>
     </string>
-
+    <string name="update_msg_latest">The app is already updated to the latest version.</string>
+    <string name="update_downloaded_msg">An update has just been downloaded.</string>
+    <string name="restart">Restart</string>
 
 
 </resources>

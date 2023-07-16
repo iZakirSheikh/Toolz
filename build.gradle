@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 buildscript {
     // Some Global Constants.
     ext {
-        kotlin_version = '1.8.21'
-        hilt_version = '2.46.1'
+        kotlin_version = '1.8.22'
+        hilt_version = '2.47'
     }
 
     // Required Plugin Dependencies.

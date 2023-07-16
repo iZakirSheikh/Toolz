@@ -174,6 +174,10 @@ private val iBannerListener = object : BannerView.IListener {
         bannerView.visibility = View.VISIBLE
     }
 
+    override fun onBannerShown(bannerAdView: BannerView?) {
+        // No-op
+    }
+
     override fun onBannerClick(bannerView: BannerView) {
         fAnalytics.logEvent("Banner clicked: id = ${bannerView.placementId}", null)
     }

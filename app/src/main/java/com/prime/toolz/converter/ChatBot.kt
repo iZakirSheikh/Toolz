@@ -85,8 +85,8 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.prime.toolz.LocalWindowSizeClass
-import com.prime.toolz.LocalsProvider
+import com.prime.toolz.core.compose.LocalWindowSizeClass
+import com.prime.toolz.core.compose.LocalSystemFacade
 import com.prime.toolz.Material
 import com.prime.toolz.R
 import com.prime.toolz.core.ContentAlpha
@@ -98,8 +98,8 @@ import com.prime.toolz.core.billing.purchased
 import com.prime.toolz.core.converter.Converter
 import com.prime.toolz.core.converter.Unet
 import com.prime.toolz.core.math.NumUtil
-import com.prime.toolz.preference
-import com.prime.toolz.purchase
+import com.prime.toolz.core.compose.preference
+import com.prime.toolz.core.compose.purchase
 import com.prime.toolz.settings.Settings
 import com.primex.core.Text
 import com.primex.core.drawHorizontalDivider
@@ -176,7 +176,7 @@ private fun TopBar(
             )
         },
         actions = {
-            val provider = LocalsProvider.current
+            val provider = LocalSystemFacade.current
             val msg = stringResource(id = R.string.coming_soon_msg)
             com.primex.material3.OutlinedButton(
                 label = "ADD",
@@ -427,8 +427,7 @@ private fun ValueField(
                 onValueChange = onValueChange,
                 readOnly = false,
                 singleLine = true,
-
-                // a workaround for keyboard issue.
+                // A workaround for keyboard issue.
                 // using readOnly introduces another issue.
                 enabled = !expanded,
                 visualTransformation = visualTransformation,
@@ -501,11 +500,13 @@ fun ResultField(
                 value = value,
                 onValueChange = { },
                 singleLine = true,
+                // A workaround for keyboard issue.
+                // using readOnly introduces another issue.
+                enabled = !expanded,
                 visualTransformation = visualTransformation,
                 shape = RoundedCornerShape(topStartPercent = 10, topEndPercent = 10),
                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-
 
                 modifier = Modifier
                     .fillMaxWidth()
@@ -584,7 +585,7 @@ private fun AboutEquals(
     modifier: Modifier = Modifier,
 ) {
     val color = LocalContentColor.current
-   com.primex.material3.Text(
+    com.primex.material3.Text(
         modifier = modifier,
         text = buildAnnotatedString {
             values.forEach { (text, value) ->
