@@ -35,6 +35,7 @@ jobs:
       - name: Create Github Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: v1.0.0
           generate_release_notes: true
           prerelease: true
           files: |
