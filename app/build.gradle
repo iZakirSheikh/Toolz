@@ -14,10 +14,10 @@ android {
 
     signingConfigs {
         release {
-            storeFile file("keystore.jks")
-            storePassword System.getenv("SIGNING_STORE_PASSWORD")
-            keyAlias System.getenv("SIGNING_KEY_ALIAS")
-            keyPassword System.getenv("SIGNING_KEY_PASSWORD")
+            storeFile file("\"C:\\Users\\sheik\\OneDrive\\Desktop\\key\\release_key.jks\"")
+            storePassword ""
+            keyAlias "System.getenv(SIGNING_KEY_ALIAS)"
+            keyPassword "System.getenv(SIGNING_KEY_PASSWORD)"
         }
     }
 
@@ -45,7 +45,7 @@ android {
             // the Android Gradle plugin. To learn more, go to the section about
             // R8 configuration files.
            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+           // signingConfig signingConfigs.debug
         }
         debug {
             applicationIdSuffix = ".debug"
