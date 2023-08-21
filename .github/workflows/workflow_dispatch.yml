@@ -16,6 +16,8 @@ jobs:
 
       - uses: r0adkll/sign-android-release@v1
         name: Sign APK
+          # ID used to access action output
+        id: sign_app
         with:
           releaseDirectory: app/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY_STORE_BASE64 }}
