@@ -1,7 +1,7 @@
 on:
   push:
     branches: test
-  workflow_dispatch: # Add this line
+release_build: # Add this line
     jobs:
       check-bats-version:
     runs-on: ubuntu-latest
