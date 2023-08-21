@@ -4,10 +4,10 @@ on:
     tags:
       - v*
   workflow_dispatch: # Add this line
+    jobs:
+      check-bats-version:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
-jobs:
-  build:
     steps:
       - uses: actions/checkout@v2.6.0
 
