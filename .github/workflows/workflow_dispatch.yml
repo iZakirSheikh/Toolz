@@ -1,28 +1,39 @@
+name: "Tag & Deploy Action"
+
 on:
   push:
-    branches: test
-    tags:
-      - v*
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: r0adkll/sign-android-release@v1
-        name: Sign app APK
-        # ID used to access action output
-        id: sign_app
-        with:
-          releaseDirectory: /app
-          signingKeyBase64: ${{ secrets.SIGNING_KEY_STORE_BASE64 }}
-          alias: ${{ secrets.SIGNING_KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
-        env:
-          # override default build-tools version (29.0.3) -- optional
-          BUILD_TOOLS_VERSION: "30.0.2"
+    branches:
+      - test
 
-      # Example use of `signedReleaseFile` output -- not needed
-      - uses: actions/upload-artifact@v2
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test action
+
+    steps:
+      - uses: actions/checkout@v1
+        name: Checkout code
+
+      - uses: ./
+        name: Sign APK
         with:
-          name: Signed app bundle
-          path: ${{steps.sign_app.outputs.signedReleaseFile}}
+          releaseDirectory: app/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY_STORE_BASE64 }}
+          alias: secrets.SIGNING_KEY_ALIAS
+          keyStorePassword: secrets.SIGNING_STORE_PASSWORD
+          keyPassword: SIGNING_KEY_PASSWORD
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Update action
+
+    steps:
+      - uses: actions/checkout@v1
+        name: Checkout code
+
+      - name: Update v1 Tag
+        uses: hole19/git-tag-action@master
+        env:
+          TAG: v1
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
