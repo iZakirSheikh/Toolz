@@ -4,7 +4,6 @@ on:
     tags:
       - v*
 jobs:
-  release:
 steps:
   - uses: r0adkll/sign-android-release@v1
     name: Sign app APK
