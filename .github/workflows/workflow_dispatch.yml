@@ -1,8 +1,6 @@
 on:
   push:
     branches: test
-    tags:
-      - v*
   workflow_dispatch: # Add this line
     jobs:
       check-bats-version:
