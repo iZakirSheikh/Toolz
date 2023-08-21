@@ -1,13 +1,10 @@
 on:
   push:
     branches: test
-    tags:
-      - v*
-
-  release_build:
+release_build: # Add this line
+    jobs:
+      check-bats-version:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-
     steps:
       - uses: actions/checkout@v2.6.0
 
