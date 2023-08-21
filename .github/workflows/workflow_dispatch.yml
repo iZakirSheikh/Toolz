@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v1
         name: Checkout code
 
-      - uses: ./
+      - uses: r0adkll/sign-android-release@v1
         name: Sign APK
         with:
           releaseDirectory: app/release
@@ -22,18 +22,3 @@ jobs:
           alias: secrets.SIGNING_KEY_ALIAS
           keyStorePassword: secrets.SIGNING_STORE_PASSWORD
           keyPassword: SIGNING_KEY_PASSWORD
-
-  release:
-    needs: test
-    runs-on: ubuntu-latest
-    name: Update action
-
-    steps:
-      - uses: actions/checkout@v1
-        name: Checkout code
-
-      - name: Update v1 Tag
-        uses: hole19/git-tag-action@master
-        env:
-          TAG: v1
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
