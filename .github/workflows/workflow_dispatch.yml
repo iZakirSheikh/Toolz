@@ -3,7 +3,7 @@ on:
     branches: test
     tags:
       - v*
-
+jobs:
   release:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
