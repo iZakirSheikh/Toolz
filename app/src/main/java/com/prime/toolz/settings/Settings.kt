@@ -121,6 +121,6 @@ interface Settings {
                     override fun save(value: Char): String = "$value"
                 }
             )
-        val LatoFontFamily = FontFamily("Lato")
+        val LatoFontFamily = FontFamily("Roboto")
     }
 }

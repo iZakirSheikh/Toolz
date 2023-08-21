@@ -15,9 +15,9 @@ android {
     defaultConfig {
         applicationId "com.prime.toolz2"
         minSdk 21
-        targetSdk 33
-        versionCode 44
-        versionName "2.1.0"
+        targetSdk 34
+        versionCode 45
+        versionName "2.1.1"
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary true }
