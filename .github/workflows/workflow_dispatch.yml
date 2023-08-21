@@ -23,10 +23,8 @@ jobs:
           keyStorePassword:  ${{ secrets.SIGNING_KEY_PASSWORD }}
           keyPassword:  ${{ secrets.SIGNING_KEY_PASSWORD }}
 
-      - name: Upload Release Build to Artifacts
-        uses: actions/upload-artifact@v3
+      # Example use of `signedReleaseFile` output -- not needed
+      - uses: actions/upload-artifact@v2
         with:
-          name: release-artifacts
-          paths: |
-            app/art
-            app/art
+          name: Signed app bundle
+          path: ${{steps.sign_app.outputs.signedReleaseFile}}
