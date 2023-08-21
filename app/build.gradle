@@ -12,7 +12,7 @@ android {
     compileSdk 34
     namespace 'com.prime.toolz'
 
-    signingConfigs{
+    signingConfigs {
         release {
             storeFile file("keystore.jks")
             storePassword System.getenv("SIGNING_STORE_PASSWORD")
@@ -45,7 +45,7 @@ android {
             // the Android Gradle plugin. To learn more, go to the section about
             // R8 configuration files.
            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
         debug {
             applicationIdSuffix = ".debug"
