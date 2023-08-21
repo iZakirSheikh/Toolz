@@ -32,6 +32,7 @@ jobs:
         run: |
           echo $ENCODED_STRING > keystore-b64.txt
           base64 -d keystore-b64.txt > $SIGNING_KEY_STORE_PATH
+          test -s $SIGNING_KEY_STORE_PATH || { echo "Keystore file creation failed."; exit 1; }
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
