@@ -19,6 +19,6 @@ jobs:
         with:
           releaseDirectory: app/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY_STORE_BASE64 }}
-          alias: secrets.SIGNING_KEY_ALIAS
-          keyStorePassword: secrets.SIGNING_STORE_PASSWORD
-          keyPassword: secrets.SIGNING_KEY_PASSWORD
+          alias:  ${{ secrets.SIGNING_KEY_ALIAS }}
+          keyStorePassword:  ${{ secrets.SIGNING_KEY_PASSWORD }}
+          keyPassword:  ${{ secrets.SIGNING_KEY_PASSWORD }}
