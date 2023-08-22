@@ -5,7 +5,6 @@ import com.primex.preferences.intPreferenceKey
 import dagger.hilt.android.HiltAndroidApp
 
 private const val TAG = "Toolz"
-
 @HiltAndroidApp
 class Toolz : Application() {
     companion object {

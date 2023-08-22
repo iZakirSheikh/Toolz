@@ -63,8 +63,6 @@ import com.prime.toolz.Toolz
 import com.prime.toolz.core.ContentPadding
 import com.prime.toolz.core.NightMode
 import com.prime.toolz.core.billing.Banner
-import com.prime.toolz.core.billing.Placement
-import com.prime.toolz.core.billing.Product
 import com.prime.toolz.core.billing.purchased
 import com.prime.toolz.core.compose.purchase
 import com.primex.core.get
@@ -127,12 +125,12 @@ private fun Toolbar(
         actions = {
             // Show if not purchased.
             val provider = LocalSystemFacade.current
-            val purchased by purchase(id = Product.DISABLE_ADS)
+            val purchased by purchase(id = BuildConfig.IAP_NO_ADS)
             if (purchased.purchased)
                 IconButton(
                     icon = Icons.Outlined.ShoppingCart,
                     contentDescription = "buy full version",
-                    onClick = { provider.launchBillingFlow(Product.DISABLE_ADS) },
+                    onClick = { provider.launchBillingFlow(BuildConfig.IAP_NO_ADS) },
                 )
         },
     )
@@ -163,12 +161,12 @@ fun SideBar(
 
         // Show if not purchased.
         val provider = LocalSystemFacade.current
-        val purchased by purchase(id = Product.DISABLE_ADS)
+        val purchased by purchase(id = BuildConfig.IAP_NO_ADS)
         if (purchased.purchased)
             IconButton(
                 icon = Icons.Outlined.ShoppingCart,
                 contentDescription = "buy full version",
-                onClick = { provider.launchBillingFlow(Product.DISABLE_ADS) },
+                onClick = { provider.launchBillingFlow(BuildConfig.IAP_NO_ADS) },
             )
     }
 }
@@ -419,9 +417,9 @@ private fun Compact(
             }
 
             // Ad Banner
-            val purchase by purchase(id = Product.DISABLE_ADS)
+            val purchase by purchase(id = BuildConfig.IAP_NO_ADS)
             if (!purchase.purchased) Banner(
-                placementID = Placement.BANNER_SETTINGS,
+                placementID = BuildConfig.PLACEMENT_BANNER_1,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             // Main Content
@@ -462,9 +460,9 @@ private fun Medium(
             }
 
             // Ad Banner
-            val purchase by purchase(id = Product.DISABLE_ADS)
+            val purchase by purchase(id = BuildConfig.IAP_NO_ADS)
             if (!purchase.purchased) Banner(
-                placementID = Placement.BANNER_SETTINGS,
+                placementID = BuildConfig.PLACEMENT_BANNER_1,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             // Main Content

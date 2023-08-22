@@ -46,7 +46,6 @@ import com.prime.toolz.chatbot.ChatBot
 import com.prime.toolz.converter.UnitConverter
 import com.prime.toolz.core.ContentPadding
 import com.prime.toolz.core.NightMode
-import com.prime.toolz.core.billing.Product
 import com.prime.toolz.core.billing.purchased
 import com.prime.toolz.core.compose.LocalNavController
 import com.prime.toolz.core.compose.LocalSystemFacade
@@ -243,13 +242,13 @@ private inline fun Tabs(
     )
 
     // Buy app
-    val disableAds by purchase(id = Product.DISABLE_ADS)
+    val disableAds by purchase(id = BuildConfig.IAP_NO_ADS)
     val provider = LocalSystemFacade.current
     if (!disableAds.purchased)
         IconButton(
             icon = Icons.Outlined.ShoppingCart,
             contentDescription = "Buy app",
-            onClick = { provider.launchBillingFlow(Product.DISABLE_ADS) },
+            onClick = { provider.launchBillingFlow(BuildConfig.IAP_NO_ADS) },
         )
 }
 

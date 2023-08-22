@@ -85,6 +85,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.prime.toolz.BuildConfig
 import com.prime.toolz.core.compose.LocalWindowSizeClass
 import com.prime.toolz.core.compose.LocalSystemFacade
 import com.prime.toolz.Material
@@ -92,8 +93,6 @@ import com.prime.toolz.R
 import com.prime.toolz.core.ContentAlpha
 import com.prime.toolz.core.ContentPadding
 import com.prime.toolz.core.billing.Banner
-import com.prime.toolz.core.billing.Placement
-import com.prime.toolz.core.billing.Product
 import com.prime.toolz.core.billing.purchased
 import com.prime.toolz.core.converter.Converter
 import com.prime.toolz.core.converter.Unet
@@ -703,10 +702,10 @@ fun Compact(
                     .padding(horizontal = 28.dp, vertical = ContentPadding.medium),
             )
             // Ad Banner
-            val purchase by purchase(id = Product.DISABLE_ADS)
+            val purchase by purchase(id = BuildConfig.IAP_NO_ADS)
             if (!purchase.purchased)
                 Banner(
-                    placementID = Placement.BANNER_SETTINGS,
+                    placementID = BuildConfig.PLACEMENT_BANNER_1,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
         }

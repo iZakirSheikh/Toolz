@@ -107,11 +107,6 @@ interface Settings {
         val KEY_HIDE_STATUS_BAR = booleanPreferenceKey(TAG + "_hide_status_bar", false)
         val KEY_DYNAMIC_COLORS = booleanPreferenceKey(TAG + "_dynamic_colors", true)
 
-        /**
-         * The counter counts the number of times this app was launched.
-         */
-        val KEY_LAUNCH_COUNTER = intPreferenceKey(TAG + "_launch_counter")
-
         val KEY_GROUP_SEPARATOR =
             stringPreferenceKey(
                 TAG + "_group_separator",

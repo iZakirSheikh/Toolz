@@ -60,13 +60,13 @@ import androidx.core.text.HtmlCompat
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.prime.toolz.BuildConfig
 import com.prime.toolz.core.compose.LocalNavController
 import com.prime.toolz.core.compose.LocalWindowSizeClass
 import com.prime.toolz.core.compose.LocalSystemFacade
 import com.prime.toolz.Material
 import com.prime.toolz.R
 import com.prime.toolz.core.ContentPadding
-import com.prime.toolz.core.billing.Product
 import com.prime.toolz.core.billing.purchased
 import com.prime.toolz.core.compose.OutlinedButton2
 import com.prime.toolz.core.gpt.Message
@@ -110,12 +110,12 @@ private fun ToolBar(
         },
         actions = {
             val provider = LocalSystemFacade.current
-            val purchase by purchase(id = Product.DISABLE_ADS)
+            val purchase by purchase(id = BuildConfig.IAP_NO_ADS)
             if (!purchase.purchased) // only show when not purchased.
                 OutlinedButton(
                     label = stringHtmlResource(id = R.string.remove_ads),
                     modifier = Modifier.scale(0.85f),
-                    onClick = { provider.launchBillingFlow(Product.DISABLE_ADS) }
+                    onClick = { provider.launchBillingFlow(BuildConfig.IAP_NO_ADS) }
                 )
 
             // Login.
@@ -149,12 +149,12 @@ private fun SideBar(
         },
         content = {
             val provider = LocalSystemFacade.current
-            val purchase by purchase(id = Product.DISABLE_ADS)
+            val purchase by purchase(id = BuildConfig.IAP_NO_ADS)
             if (!purchase.purchased) // only show when not purchased.
                 OutlinedButton2(
                     label = stringHtmlResource(id = R.string.remove_ads),
                     modifier = Modifier.scale(0.85f),
-                    onClick = { provider.launchBillingFlow(Product.DISABLE_ADS) },
+                    onClick = { provider.launchBillingFlow(BuildConfig.IAP_NO_ADS) },
                     icon = painterResource(id = R.drawable.ic_remove_ads),
                     shape = RoundedCornerShape(20)
                 )
