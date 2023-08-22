@@ -1,0 +1,37 @@
+name: Test
+
+env:
+  # The name of the main module repository
+  main_project_module: app
+
+  #on:
+  push:
+    branches:
+      # Change this to master once everything is setup.
+      - 'develop'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      # Set Current Date As Env Variable
+      - name: Setting Current Date as Env Variable
+        run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+      # Constructing the GitTAG from versionName for creating a release.
+      - name: Constructing Git TAG
+        #run: echo "GIT_TAG=$(echo $(grep "versionName" "./app/build.gradle" | awk '{print $2}') | tr -d '"')" >> $GITHUB_ENV    # get value versionName"0.1.0"
+        id: version
+        #run: GIT_TAG = $(echo $(grep "versionName" "./app/build.gradle" | awk '{print $2}') | tr -d '"') # get value versionName"0.1.0"
+        run: echo "::set-output name=GIT_TAG::$(tr -d '"' <<< $(grep "versionName" "./app/build.gradle" | awk '{print $2}'))"
+        env:
+          IAP_BUY_ME_COFFEE: ${{ secrets.IAP_BUY_ME_COFFEE }}
+          IAP_NO_ADS: ${{ secrets.IAP_NO_ADS }}
+          PLACEMENT_BANNER_1: ${{ secrets.PLACEMENT_BANNER_1 }}
+          PLACEMENT_BANNER_2: ${{ secrets.PLACEMENT_BANNER_2 }}
+          PLACEMENT_INTERSTITIAL: ${{ secrets.PLACEMENT_INTERSTITIAL }}
+          PLAY_CONSOLE_APP_RSA_KEY: ${{ secrets.PLAY_CONSOLE_APP_RSA_KEY }}UNITY_APP_ID
+          UNITY_APP_ID: ${{ secrets.UNITY_APP_ID }}
+      - name: Print environment variable
+        run: echo "The value of IAP_NO_ADS is $IAP_NO_ADS"
