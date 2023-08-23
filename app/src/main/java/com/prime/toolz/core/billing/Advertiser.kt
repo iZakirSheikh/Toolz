@@ -65,7 +65,7 @@ fun Advertiser(
     init {
         // init ads sdk
         UnityAds.initialize(context,
-            Private.UNITY_APP_ID,
+            BuildConfig.UNITY_APP_ID,
             BuildConfig.DEBUG,
             object : IUnityAdsInitializationListener {
                 override fun onInitializationComplete() {
@@ -98,7 +98,7 @@ fun Advertiser(
     /**
      * The placement id of the interstitial ad.
      */
-    private val placementID = Placement.INTERSTITIAL
+    private val placementID = BuildConfig.PLACEMENT_INTERSTITIAL
 
     /**
      * This represents the loading state of the interstitial
@@ -172,6 +172,10 @@ private val iBannerListener = object : BannerView.IListener {
         fAnalytics.logEvent("Banner loaded: id = ${bannerView.placementId}", null)
         bannerView.layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         bannerView.visibility = View.VISIBLE
+    }
+
+    override fun onBannerShown(bannerAdView: BannerView?) {
+        // No-op
     }
 
     override fun onBannerClick(bannerView: BannerView) {

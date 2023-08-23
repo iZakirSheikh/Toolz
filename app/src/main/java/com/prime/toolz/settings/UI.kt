@@ -54,19 +54,17 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
 import com.prime.toolz.BuildConfig
-import com.prime.toolz.LocalNavController
-import com.prime.toolz.LocalWindowSizeClass
-import com.prime.toolz.LocalsProvider
+import com.prime.toolz.core.compose.LocalNavController
+import com.prime.toolz.core.compose.LocalWindowSizeClass
+import com.prime.toolz.core.compose.LocalSystemFacade
 import com.prime.toolz.Material
 import com.prime.toolz.R
 import com.prime.toolz.Toolz
 import com.prime.toolz.core.ContentPadding
 import com.prime.toolz.core.NightMode
 import com.prime.toolz.core.billing.Banner
-import com.prime.toolz.core.billing.Placement
-import com.prime.toolz.core.billing.Product
 import com.prime.toolz.core.billing.purchased
-import com.prime.toolz.purchase
+import com.prime.toolz.core.compose.purchase
 import com.primex.core.get
 import com.primex.core.rotate
 import com.primex.core.stringHtmlResource
@@ -126,13 +124,13 @@ private fun Toolbar(
         },
         actions = {
             // Show if not purchased.
-            val provider = LocalsProvider.current
-            val purchased by purchase(id = Product.DISABLE_ADS)
+            val provider = LocalSystemFacade.current
+            val purchased by purchase(id = BuildConfig.IAP_NO_ADS)
             if (purchased.purchased)
                 IconButton(
                     icon = Icons.Outlined.ShoppingCart,
                     contentDescription = "buy full version",
-                    onClick = { provider.launchBillingFlow(Product.DISABLE_ADS) },
+                    onClick = { provider.launchBillingFlow(BuildConfig.IAP_NO_ADS) },
                 )
         },
     )
@@ -162,13 +160,13 @@ fun SideBar(
         )
 
         // Show if not purchased.
-        val provider = LocalsProvider.current
-        val purchased by purchase(id = Product.DISABLE_ADS)
+        val provider = LocalSystemFacade.current
+        val purchased by purchase(id = BuildConfig.IAP_NO_ADS)
         if (purchased.purchased)
             IconButton(
                 icon = Icons.Outlined.ShoppingCart,
                 contentDescription = "buy full version",
-                onClick = { provider.launchBillingFlow(Product.DISABLE_ADS) },
+                onClick = { provider.launchBillingFlow(BuildConfig.IAP_NO_ADS) },
             )
     }
 }
@@ -254,7 +252,7 @@ private inline fun ColumnScope.Feedback() {
     Header(text = stringResource(id = R.string.feedback))
 
     val context = LocalContext.current
-    val provider = LocalsProvider.current
+    val provider = LocalSystemFacade.current
     Preference(
         title = stringResource(id = R.string.feedback),
         summery = stringResource(id = R.string.feedback_desc),
@@ -302,7 +300,7 @@ private inline fun ColumnScope.Content(
     Header(text = stringResource(id = R.string.appearance))
     //Dark Mode
     val darkTheme = state.nightMode
-    val provider = LocalsProvider.current
+    val provider = LocalSystemFacade.current
     DropDownPreference(
         title = stringResource(value = darkTheme.title),
         defaultValue = darkTheme.value,
@@ -419,9 +417,9 @@ private fun Compact(
             }
 
             // Ad Banner
-            val purchase by purchase(id = Product.DISABLE_ADS)
+            val purchase by purchase(id = BuildConfig.IAP_NO_ADS)
             if (!purchase.purchased) Banner(
-                placementID = Placement.BANNER_SETTINGS,
+                placementID = BuildConfig.PLACEMENT_BANNER_1,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             // Main Content
@@ -462,9 +460,9 @@ private fun Medium(
             }
 
             // Ad Banner
-            val purchase by purchase(id = Product.DISABLE_ADS)
+            val purchase by purchase(id = BuildConfig.IAP_NO_ADS)
             if (!purchase.purchased) Banner(
-                placementID = Placement.BANNER_SETTINGS,
+                placementID = BuildConfig.PLACEMENT_BANNER_1,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             // Main Content

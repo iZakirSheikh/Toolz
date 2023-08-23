@@ -1,47 +1,12 @@
 package com.prime.toolz
 
 import android.app.Application
-import android.content.Context
-import androidx.compose.material3.SnackbarHostState
-import com.google.firebase.FirebaseApp
-import com.primex.preferences.*
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
+import com.primex.preferences.intPreferenceKey
 import dagger.hilt.android.HiltAndroidApp
-import dagger.hilt.android.components.ActivityRetainedComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityRetainedScoped
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 private const val TAG = "Toolz"
-
-@Module
-@InstallIn(SingletonComponent::class)
-object Singleton {
-    @Provides
-    @Singleton
-    fun preferences(@ApplicationContext context: Context) =
-        Preferences(context, "shared_preferences")
-}
-
-@Module
-@InstallIn(ActivityRetainedComponent::class)
-object Activity {
-    @ActivityRetainedScoped
-    @Provides
-    fun channel() = SnackbarHostState()
-}
-
 @HiltAndroidApp
 class Toolz : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        // initialize firebase
-        FirebaseApp.initializeApp(this)
-    }
-
     companion object {
         /**
          * The counter counts the number of times this app was launched.

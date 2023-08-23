@@ -3,6 +3,12 @@ package com.prime.toolz.settings
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
+import com.prime.toolz.R
 import com.prime.toolz.core.NightMode
 import com.primex.core.Text
 import com.primex.preferences.Key
@@ -29,6 +35,22 @@ data class Preference<out P>(
     val vector: ImageVector? = null,
     @JvmField val summery: Text? = null,
 )
+
+@OptIn(ExperimentalTextApi::class)
+private val provider = GoogleFont.Provider(
+    "com.google.android.gms.fonts",
+    "com.google.android.gms",
+    R.array.com_google_android_gms_fonts_certs
+)
+
+@Stable
+private fun FontFamily(name: String) =
+    FontFamily(
+        Font(GoogleFont(name), provider, FontWeight.Light),
+        Font(GoogleFont(name), provider, FontWeight.Medium),
+        Font(GoogleFont(name), provider, FontWeight.Normal),
+        Font(GoogleFont(name), provider, FontWeight.Bold),
+    )
 
 /**
  * Interface representing the settings.
@@ -85,20 +107,15 @@ interface Settings {
         val KEY_HIDE_STATUS_BAR = booleanPreferenceKey(TAG + "_hide_status_bar", false)
         val KEY_DYNAMIC_COLORS = booleanPreferenceKey(TAG + "_dynamic_colors", true)
 
-        /**
-         * The counter counts the number of times this app was launched.
-         */
-        val KEY_LAUNCH_COUNTER = intPreferenceKey(TAG + "_launch_counter")
-
-        val KEY_GROUP_SEPARATOR = stringPreferenceKey(
-            name = TAG + "_group_separator",
-            defaultValue = ',',
-            saver = object : StringSaver<Char> {
-                override fun restore(value: String): Char = value[0]
-
-                override fun save(value: Char): String = "$value"
-            },
-        )
-
+        val KEY_GROUP_SEPARATOR =
+            stringPreferenceKey(
+                TAG + "_group_separator",
+                ',',
+                object : StringSaver<Char> {
+                    override fun restore(value: String): Char = value[0]
+                    override fun save(value: Char): String = "$value"
+                }
+            )
+        val LatoFontFamily = FontFamily("Roboto")
     }
 }

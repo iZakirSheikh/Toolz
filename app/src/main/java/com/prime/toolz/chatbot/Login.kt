@@ -1,4 +1,6 @@
 package com.prime.toolz.chatbot
+/*
+
 
 import android.os.Handler
 import android.os.Looper
@@ -52,7 +54,8 @@ private class RequestInspectorWebViewClientImpl(
 
 
     private fun WebView.extractAccessToken() {
-        /*val javascript = """
+        */
+/*val javascript = """
             // JavaScript code to extract the accessToken from the page
             (function() {
                 // Modify the selector according to the structure of the web page
@@ -71,7 +74,8 @@ private class RequestInspectorWebViewClientImpl(
             val accessToken = result.trim('"')
             // Use the accessToken as needed
             println("Access Token: $accessToken")
-        }*/
+        }*//*
+
         Log.d(TAG, "extractAccessToken: ")
     }
 
@@ -83,7 +87,8 @@ private class RequestInspectorWebViewClientImpl(
 
 
 
-    /*override fun shouldInterceptRequest(
+    */
+/*override fun shouldInterceptRequest(
         view: WebView,
         webViewRequest: WebViewRequest
     ): WebResourceResponse? {
@@ -114,20 +119,27 @@ private class RequestInspectorWebViewClientImpl(
             val cookie = webViewRequest.headers[COOKIE] ?: return null
             val header = webViewRequest.headers
             //onLoggedIn(cookie)
-            *//*runOnUiThread {
+            *//*
+*/
+/*runOnUiThread {
                 view.loadUrl("https://chat.openai.com/api/auth/session")
             }*//*
+*/
+/*
         }
         return super.shouldInterceptRequest(view, webViewRequest)
-    }*/
+    }*//*
+
 }
 
 
+*/
 /**
  * This represents the login screen for [ChatGPT]. Once logged in, the cookie will be sent through the
  * [onLoggedIn] function.
  * This uses a WebView to login to the [ChatGPT] and receive the [cookie].
- */
+ *//*
+
 @Composable
 fun Login(
     onLoggedIn: (cookie: String) -> Unit,
@@ -159,4 +171,4 @@ fun Login(
         factory = { view },
         modifier = modifier
     )
-}
+}*/

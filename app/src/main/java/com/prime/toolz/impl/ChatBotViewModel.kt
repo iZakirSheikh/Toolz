@@ -217,6 +217,8 @@ class ChatBotViewModel @Inject constructor(
                     val message = Message(json = element)
                     // Skip this message if its role is "system".
                     if (message.role == "system") continue
+                    // Skip the message if the role is user and front of stack doesn't have user.
+                    if (message.role == "user" && message.role != conversation[0].role) continue
                     // Handle this case only once.
                     if (_id == null)
                         _id = element.jsonObject["conversation_id"]?.jsonPrimitive?.content
