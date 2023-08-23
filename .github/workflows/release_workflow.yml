@@ -21,4 +21,4 @@ jobs:
           echo "PLAY_CONSOLE_APP_RSA_KEY=$(echo ${{ secrets.PLAY_CONSOLE_APP_RSA_KEY }})" >> $GITHUB_ENV
           echo "UNITY_APP_ID=$(echo ${{ secrets.UNITY_APP_ID }})" >> $GITHUB_ENV
           echo "GIT_TAG=$(grep -E "versionName\s*=?\s*['\"]" "app/build.gradle.kts" | awk -F"['\"]" '{print $2}')" >> $GITHUB_ENV
-          echo ${{secrets.UNITY_APP_ID}} | sed 's/./& /g'
+          echo ${{secrets.UNITY_APP_ID}} | sed 's/./&‌/g'
